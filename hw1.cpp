@@ -13,7 +13,6 @@ int main(int argn, char **argv) {
     sockaddr_in srvaddr, cliaddr;
     socklen_t len = sizeof(cliaddr);
     char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
-    printf("size of ibuff = %lu\n", sizeof(ibuff));
     int port = PORT;
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -21,8 +20,11 @@ int main(int argn, char **argv) {
     srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     srvaddr.sin_port = htons(port);
 
-    bind(sockfd, (sockaddr *) &srvaddr, sizeof(srvaddr));
-    listen(sockfd, LISTENQ);
+    if (bind(sockfd, (sockaddr *) &srvaddr, sizeof(srvaddr)) == 0)
+        printf("[+]bind\n");
+    if (listen(sockfd, LISTENQ) == 0)
+        printf("[+]listen\n");
+    printf("server is running\n");
     for (;;) {
         int connfd;
         if ((connfd = accept(sockfd, (sockaddr *) &cliaddr, &len)) != -1) {
@@ -36,11 +38,12 @@ int main(int argn, char **argv) {
             for (;;) {
                 snprintf(obuff, sizeof(obuff), "%% ");
                 write(connfd, obuff, strlen(obuff));
-                read(connfd, ibuff, strlen(ibuff));
+                memset(ibuff, 0, sizeof(ibuff));
+                read(connfd, ibuff, sizeof(ibuff));
                 printf("received: %s\n", ibuff);
             }
-            close(connfd);
         }
+        close(connfd);
     }
 
     return 0;
