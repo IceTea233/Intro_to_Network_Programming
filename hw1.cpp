@@ -7,34 +7,40 @@
 
 #define MAXLINE 1000
 #define LISTENQ 16
+#define PORT 8888
 
 int main(int argn, char **argv) {
-    sockaddr_in servaddr, cliaddr;
+    sockaddr_in srvaddr, cliaddr;
     socklen_t len = sizeof(cliaddr);
-    char buff[MAXLINE];
+    char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
+    printf("size of ibuff = %lu\n", sizeof(ibuff));
+    int port = PORT;
 
-    int port = atoi(argv[1]);
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    srvaddr.sin_family = AF_INET;
+    srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    srvaddr.sin_port = htons(port);
 
-    int listenfd = socket(AF_INET, SOCK_STREAM, 0);
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(port);
-    printf("Port: %d\n", port);
-
-    bind(listenfd, (sockaddr *) &servaddr, sizeof(servaddr));
-    printf("[+]Bind\n");
-    listen(listenfd, LISTENQ);
-    printf("[+]Listening for the client\n");
-
-    while (1) {
-        int connfd = accept(listenfd, (sockaddr *) &cliaddr, &len);
-        printf("connection from %s, port %d\n",
+    bind(sockfd, (sockaddr *) &srvaddr, sizeof(srvaddr));
+    listen(sockfd, LISTENQ);
+    for (;;) {
+        int connfd;
+        if ((connfd = accept(sockfd, (sockaddr *) &cliaddr, &len)) != -1) {
+            printf("Connect from %s:%d\n",
                 inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
                 ntohs(cliaddr.sin_port));
-        time_t ticks = time(NULL);
-        snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&ticks));
-        write(connfd, buff, strlen(buff));
-        close(connfd);
+
+            snprintf(obuff, sizeof(obuff), "********************************\n** Welcome to the BBS server. **\n********************************\n");
+            write(connfd, obuff, strlen(obuff));
+
+            for (;;) {
+                snprintf(obuff, sizeof(obuff), "%% ");
+                write(connfd, obuff, strlen(obuff));
+                read(connfd, ibuff, strlen(ibuff));
+                printf("received: %s\n", ibuff);
+            }
+            close(connfd);
+        }
     }
 
     return 0;
