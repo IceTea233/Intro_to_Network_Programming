@@ -20,8 +20,27 @@ vector<string> GetArg(char *input) {
     ss << input;
     string str;
     vector<string> ret;
+
+    bool flag = false;
     while (ss >> str) {
-        ret.push_back(str);
+        if(flag) {
+            ret.back().append(" " + str);
+            if (str.back() == '\"') {
+                ret.back().pop_back();
+                flag = false;
+            }
+        } else {
+            if (str[0] == '\"') {
+                ret.push_back(str.substr(1));
+                flag = true;
+            } else {
+                ret.push_back(str);
+            }
+        }
+    }
+
+    for (auto it : ret) {
+        cout << it << "\n";
     }
     return ret;
 }
@@ -60,7 +79,7 @@ int Handle(char *input, char *buff, int buff_len) {
             ret = Exit(args, data, user);
             code = 1;
         } else if (args[0] == "send") {
-
+            ret = Send(args, data, user);
         } else if (args[0] == "list-msg") {
 
         } else if (args[0] == "receive") {
