@@ -1,3 +1,6 @@
+#include "Basic.hpp"
+#include "Message_Box.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +19,7 @@
 
 using namespace std;
 
-vector<string> getarg(char *input, int len) {
+vector<string> GetArg(char *input, int len) {
     stringstream ss;
     ss << input;
     string str;
@@ -27,12 +30,40 @@ vector<string> getarg(char *input, int len) {
     return ret;
 }
 
-int handle(char *input, int len) {
+void CmdHint() {
+    cout << "Available command: "
+        << "register, login, logout, whoami, list-user, exit, send, list-msg, receive" << endl;
+}
+
+int Handle(char *input, int len) {
     int ret = 0;
-    vector<string> arg = getarg(input, len);
-    cout << "size = " << arg.size() << "\n";
-    for (auto it : arg) {
-        cout << ">>> " << it << "\n";
+    vector<string> args = GetArg(input, len);
+
+    if (args.empty()) {
+        CmdHint();
+    } else {
+        if (args[0] == "register") {
+            cout << "Command: register" << "\n";
+            Register(args);
+        } else if (args[0] == "login") {
+
+        } else if (args[0] == "logout") {
+
+        } else if (args[0] == "whoami") {
+
+        } else if (args[0] == "list-user") {
+
+        } else if (args[0] == "exit") {
+
+        } else if (args[0] == "send") {
+
+        } else if (args[0] == "list-msg") {
+
+        } else if (args[0] == "receive") {
+
+        } else {
+            CmdHint();
+        }
     }
     return ret;
 }
@@ -68,7 +99,7 @@ int main(int argn, char **argv) {
                 write(connfd, obuff, strlen(obuff));
                 memset(ibuff, 0, sizeof(ibuff));
                 read(connfd, ibuff, sizeof(ibuff));
-                handle(ibuff, strlen(ibuff));
+                Handle(ibuff, strlen(ibuff));
             }
         }
         close(connfd);
