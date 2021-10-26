@@ -46,7 +46,9 @@ int main(int argn, char **argv) {
                 write(connfd, obuff, strlen(obuff));
                 memset(ibuff, 0, sizeof(ibuff));
                 read(connfd, ibuff, sizeof(ibuff));
-                Handle(ibuff, strlen(ibuff));
+
+                Handle(ibuff, obuff, sizeof(obuff));
+                write(connfd, obuff, strlen(obuff));
             }
         }
         close(connfd);

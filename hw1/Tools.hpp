@@ -1,14 +1,21 @@
 #include "Basic.hpp"
 #include "Message_Box.hpp"
 
+#ifndef _User_
+#define _User_
+#include "User.hpp"
+#endif
+
 #include <iostream>
 #include <vector>
 #include <string>
+#include <map>
+#include <string.h>
 #include <sstream>
 
 using namespace std;
 
-vector<string> GetArg(char *input, int len) {
+vector<string> GetArg(char *input) {
     stringstream ss;
     ss << input;
     string str;
@@ -19,21 +26,27 @@ vector<string> GetArg(char *input, int len) {
     return ret;
 }
 
-void CmdHint() {
-    cout << "Available command: "
-        << "register, login, logout, whoami, list-user, exit, send, list-msg, receive" << endl;
+string CmdHint() {
+    stringstream ss;
+    cout << "Received illegal command.\n";
+    string ret = "Available command: register, login, logout, whoami, list-user, exit, send, list-msg, receive\n";
+    return ret;
 }
 
-int Handle(char *input, int len) {
-    int ret = 0;
-    vector<string> args = GetArg(input, len);
+int Handle(char *input, char *buff, int buff_len) {
+    static map<string, User> data;
+    int code = 0;
+    memset(buff, 0, sizeof(buff));
+    vector<string> args = GetArg(input);
 
+    string ret;
     if (args.empty()) {
-        CmdHint();
+        ret = CmdHint();
+        strncpy(buff, ret.c_str(), buff_len);
     } else {
+        string ret;
         if (args[0] == "register") {
-            cout << "Command: register" << "\n";
-            Register(args);
+            ret = Register(args, data);
         } else if (args[0] == "login") {
 
         } else if (args[0] == "logout") {
@@ -51,8 +64,9 @@ int Handle(char *input, int len) {
         } else if (args[0] == "receive") {
 
         } else {
-            CmdHint();
+            ret = CmdHint();
         }
+        strncpy(buff, ret.c_str(), buff_len);
     }
-    return ret;
+    return code;
 }
