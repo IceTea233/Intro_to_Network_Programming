@@ -5,9 +5,37 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+
 #define MAXLINE 1000
 #define LISTENQ 16
 #define PORT 8888
+
+using namespace std;
+
+vector<string> getarg(char *input, int len) {
+    stringstream ss;
+    ss << input;
+    string str;
+    vector<string> ret;
+    while (ss >> str) {
+        ret.push_back(str);
+    }
+    return ret;
+}
+
+int handle(char *input, int len) {
+    int ret = 0;
+    vector<string> arg = getarg(input, len);
+    cout << "size = " << arg.size() << "\n";
+    for (auto it : arg) {
+        cout << ">>> " << it << "\n";
+    }
+    return ret;
+}
 
 int main(int argn, char **argv) {
     sockaddr_in srvaddr, cliaddr;
@@ -40,7 +68,7 @@ int main(int argn, char **argv) {
                 write(connfd, obuff, strlen(obuff));
                 memset(ibuff, 0, sizeof(ibuff));
                 read(connfd, ibuff, sizeof(ibuff));
-                printf("received: %s\n", ibuff);
+                handle(ibuff, strlen(ibuff));
             }
         }
         close(connfd);
