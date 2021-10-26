@@ -35,7 +35,7 @@ string CmdHint() {
 
 int Handle(char *input, char *buff, int buff_len) {
     static map<string, User> data;
-    User user;
+    static User user;
     int code = 0;
     memset(buff, 0, sizeof(buff));
     vector<string> args = GetArg(input);
@@ -51,7 +51,7 @@ int Handle(char *input, char *buff, int buff_len) {
         } else if (args[0] == "login") {
             ret = Login(args, data, user);
         } else if (args[0] == "logout") {
-
+            ret = Logout(args, data, user);
         } else if (args[0] == "whoami") {
 
         } else if (args[0] == "list-user") {
