@@ -54,7 +54,7 @@ vector<string> GetArg(char *input) {
 string CmdHint() {
     stringstream ss;
     cout << "Received illegal command.\n";
-    string ret = "Available command: register, login, logout, whoami, list-user, exit, send, list-msg, receive\n";
+    string ret = "Usage: register, login, logout, whoami, list-user, exit, send, list-msg, receive\n";
     return ret;
 }
 
@@ -65,35 +65,35 @@ int Handle(char *input, char *buff, int buff_len) {
     memset(buff, 0, sizeof(buff));
     vector<string> args = GetArg(input);
 
-    string ret;
+    string res;
     if (args.empty()) {
-        ret = CmdHint();
-        strncpy(buff, ret.c_str(), buff_len);
+        res = CmdHint();
+        strncpy(buff, res.c_str(), buff_len);
     } else {
         string ret;
         if (args[0] == "register") {
-            ret = Register(args, data);
+            res = Register(args, data);
         } else if (args[0] == "login") {
-            ret = Login(args, data, user);
+            res = Login(args, data, user);
         } else if (args[0] == "logout") {
-            ret = Logout(args, data, user);
+            res = Logout(args, data, user);
         } else if (args[0] == "whoami") {
-            ret = Whoami(args, data, user);
+            res = Whoami(args, data, user);
         } else if (args[0] == "list-user") {
-            ret = ListUser(args, data);
+            res = ListUser(args, data);
         } else if (args[0] == "exit") {
-            ret = Exit(args, data, user);
+            res = Exit(args, data, user);
             code = 1;
         } else if (args[0] == "send") {
-            ret = Send(args, data, user);
+            res = Send(args, data, user);
         } else if (args[0] == "list-msg") {
 
         } else if (args[0] == "receive") {
 
         } else {
-            ret = CmdHint();
+            res = CmdHint();
         }
-        strncpy(buff, ret.c_str(), buff_len);
+        strncpy(buff, res.c_str(), buff_len);
     }
     return code;
 }

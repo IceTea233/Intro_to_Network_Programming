@@ -62,7 +62,7 @@ string Whoami(const vector<string> &args, map<string, User> &data, User &user) {
     cout << "Receive request: whoami\n";
 
     if (user.username.empty())
-        return "Please login first\n";
+        return "Please login first.\n";
 
     return user.username + "\n";
 }
