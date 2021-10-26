@@ -6,7 +6,7 @@
 using namespace std;
 
 string Send(const vector<string> &args, map<string, User> &data, User &user);
-void ListMsg(const vector<string> *args);
+string ListMsg(const vector<string> &args, map<string, User> &data, User &user);
 
 string Send(const vector<string> &args, map<string, User> &data, User &user) {
     cout << "Receive request: send\n";
@@ -19,4 +19,24 @@ string Send(const vector<string> &args, map<string, User> &data, User &user) {
 
     data[args[1]].msgbox[user.username].push_back(args[2]);
     return "";
+}
+
+string ListMsg(const vector<string> &args, map<string, User> &data, User &user) {
+    cout << "Receive request: list-msg\n";
+    if (user.username.empty())
+        return "Please login first.\n";
+
+    string msgs;
+    stringstream ss;
+
+    if (user.msgbox.empty()) {
+        return "Your message box is empty.\n";
+    }
+
+    for (const auto &it : user.msgbox) {
+        ss << it.second.size() << " message from " << it.first << ".\n";
+    }
+    msgs = ss.str();
+
+    return msgs;
 }

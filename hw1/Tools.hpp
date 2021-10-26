@@ -87,7 +87,7 @@ int Handle(char *input, char *buff, int buff_len) {
         } else if (args[0] == "send") {
             res = Send(args, data, user);
         } else if (args[0] == "list-msg") {
-
+            res = ListMsg(args, data, user);
         } else if (args[0] == "receive") {
 
         } else {
