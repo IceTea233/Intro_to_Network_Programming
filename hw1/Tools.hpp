@@ -10,38 +10,44 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <string.h>
 #include <sstream>
+#include <cstring>
+#include <cctype>
 
 using namespace std;
 
 vector<string> GetArg(char *input) {
-    stringstream ss;
-    ss << input;
-    string str;
+    string buff;
     vector<string> ret;
-
     bool flag = false;
-    while (ss >> str) {
-        if(flag) {
-            ret.back().append(" " + str);
-            if (str.back() == '\"') {
-                ret.back().pop_back();
+    for (int i=0; input[i] != '\0'; i++) {
+        if (flag) {
+            if (input[i] == '\"') {
+                ret.push_back(buff);
+                buff.clear();
                 flag = false;
+            } else {
+                buff.push_back(input[i]);
             }
         } else {
-            if (str[0] == '\"') {
-                ret.push_back(str.substr(1));
+            if (input[i] == '\"') {
+                if (!buff.empty()) {
+                    ret.push_back(buff);
+                    buff.clear();
+                }
                 flag = true;
+            }
+            else if (isgraph(input[i])) {
+                buff.push_back(input[i]);
             } else {
-                ret.push_back(str);
+                if (!buff.empty()) {
+                    ret.push_back(buff);
+                    buff.clear();
+                }
             }
         }
     }
 
-    for (auto it : ret) {
-        cout << it << "\n";
-    }
     return ret;
 }
 
