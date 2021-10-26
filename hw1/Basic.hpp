@@ -16,7 +16,7 @@ string Login(const vector<string> &args, map<string, User> &data, User &user);
 string Logout(const vector<string> &args, map<string, User> &data, User &user);
 string Whoami(const vector<string> &args, map<string, User> &data, User &user);
 string ListUser(const vector<string> &args, map<string, User> &data);
-string Exit(const vector<string> &args, map<string, User> &data);
+string Exit(const vector<string> &args, map<string, User> &data, User &user);
 
 string Register(const vector<string> &args, map<string, User> &data) {
     cout << "Receive request: register\n";
@@ -78,4 +78,17 @@ string ListUser(const vector<string> &args, map<string, User> &data) {
     users = ss.str();
 
     return users;
+}
+
+string Exit(const vector<string> &args, map<string, User> &data, User &user) {
+    cout << "Receive request: list-user\n";
+
+    if (!user.username.empty()) {
+        data[user.username].login = false;
+        string tmp = user.username;
+        user = User();
+        return "Bye, " + tmp + ".\n";
+    }
+
+    return "";
 }

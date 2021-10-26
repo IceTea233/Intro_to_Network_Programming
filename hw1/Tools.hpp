@@ -57,7 +57,8 @@ int Handle(char *input, char *buff, int buff_len) {
         } else if (args[0] == "list-user") {
             ret = ListUser(args, data);
         } else if (args[0] == "exit") {
-
+            ret = Exit(args, data, user);
+            code = 1;
         } else if (args[0] == "send") {
 
         } else if (args[0] == "list-msg") {

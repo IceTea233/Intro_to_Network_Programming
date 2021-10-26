@@ -31,28 +31,29 @@ int main(int argn, char **argv) {
     if (listen(sockfd, LISTENQ) == 0)
         printf("[+]listen\n");
     printf("server is running\n");
-    for (;;) {
-        int connfd;
-        if ((connfd = accept(sockfd, (sockaddr *) &cliaddr, &len)) != -1) {
-            printf("Connect from %s:%d\n",
-                inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
-                ntohs(cliaddr.sin_port));
 
-            snprintf(obuff, sizeof(obuff), "********************************\n** Welcome to the BBS server. **\n********************************\n");
+    int connfd;
+    if ((connfd = accept(sockfd, (sockaddr *) &cliaddr, &len)) != -1) {
+        printf("Connect from %s:%d\n",
+            inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
+            ntohs(cliaddr.sin_port));
+
+        snprintf(obuff, sizeof(obuff), "********************************\n** Welcome to the BBS server. **\n********************************\n");
+        write(connfd, obuff, strlen(obuff));
+
+        for (;;) {
+            snprintf(obuff, sizeof(obuff), "%% ");
             write(connfd, obuff, strlen(obuff));
+            memset(ibuff, 0, sizeof(ibuff));
+            read(connfd, ibuff, sizeof(ibuff));
 
-            for (;;) {
-                snprintf(obuff, sizeof(obuff), "%% ");
-                write(connfd, obuff, strlen(obuff));
-                memset(ibuff, 0, sizeof(ibuff));
-                read(connfd, ibuff, sizeof(ibuff));
-
-                Handle(ibuff, obuff, sizeof(obuff));
-                write(connfd, obuff, strlen(obuff));
-            }
+            int code = Handle(ibuff, obuff, sizeof(obuff));
+            write(connfd, obuff, strlen(obuff));
+            if (code == 1)
+                break;
         }
-        close(connfd);
     }
+    close(connfd);
 
     return 0;
 }
