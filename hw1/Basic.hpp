@@ -11,16 +11,16 @@
 using namespace std;
 
 string Register(const vector<string> &args, map<string, User> &data);
-void Login(const vector<string> &args);
-void logout(const vector<string> &args);
-void Whoami(const vector<string> &args);
-void ListUser(const vector<string> &args);
-void Exit(const vector<string> &args);
+string Login(const vector<string> &args, map<string, User> &data, User &user);
+string logout(const vector<string> &args, map<string, User> &data);
+string Whoami(const vector<string> &args, map<string, User> &data);
+string ListUser(const vector<string> &args, map<string, User> &data);
+string Exit(const vector<string> &args, map<string, User> &data);
 
 string Register(const vector<string> &args, map<string, User> &data) {
-    cout << "Receive cmd: Register\n";
+    cout << "Receive request: Register\n";
     if (args.size() != 3)
-        return "register <username> <password>\n";
+        return "Usage: register <username> <password>\n";
     if (data.find(args[1]) != data.end())
         return "Username is already used.\n";
 
@@ -28,4 +28,19 @@ string Register(const vector<string> &args, map<string, User> &data) {
     data[user.username] = user;
     cout << "User " << user.username << " registered.\n";
     return "Register successfully.\n";
+}
+
+string Login(const vector<string> &args, map<string, User> &data, User &user) {
+    cout << "Receive request: Login\n";
+    if (args.size() != 3)
+        return "Usage: Login <username> <password>\n";
+    if (args[1] == user.username)
+        return "Please logout first.\n";
+    if (data.find(args[1]) == data.end() || data[args[1]].pass != args[2])
+        return "Login failed.\n";
+
+    data[args[1]].login = true;
+    user = data[args[1]];
+
+    return "Welcome, " + user.username + ".\n";
 }
