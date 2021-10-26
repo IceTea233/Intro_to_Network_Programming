@@ -53,9 +53,9 @@ int Handle(char *input, char *buff, int buff_len) {
         } else if (args[0] == "logout") {
             ret = Logout(args, data, user);
         } else if (args[0] == "whoami") {
-
+            ret = Whoami(args, data, user);
         } else if (args[0] == "list-user") {
-
+            ret = ListUser(args, data);
         } else if (args[0] == "exit") {
 
         } else if (args[0] == "send") {

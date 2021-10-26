@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <map>
 
 using namespace std;
@@ -13,12 +14,12 @@ using namespace std;
 string Register(const vector<string> &args, map<string, User> &data);
 string Login(const vector<string> &args, map<string, User> &data, User &user);
 string Logout(const vector<string> &args, map<string, User> &data, User &user);
-string Whoami(const vector<string> &args, map<string, User> &data);
+string Whoami(const vector<string> &args, map<string, User> &data, User &user);
 string ListUser(const vector<string> &args, map<string, User> &data);
 string Exit(const vector<string> &args, map<string, User> &data);
 
 string Register(const vector<string> &args, map<string, User> &data) {
-    cout << "Receive request: Register\n";
+    cout << "Receive request: register\n";
     if (args.size() < 3)
         return "Usage: register <username> <password>\n";
     if (data.find(args[1]) != data.end())
@@ -31,10 +32,10 @@ string Register(const vector<string> &args, map<string, User> &data) {
 }
 
 string Login(const vector<string> &args, map<string, User> &data, User &user) {
-    cout << "Receive request: Login\n";
+    cout << "Receive request: login\n";
     if (args.size() < 3)
         return "Usage: Login <username> <password>\n";
-    if (args[1] == user.username)
+    if (!user.username.empty())
         return "Please logout first.\n";
     if (data.find(args[1]) == data.end() || data[args[1]].pass != args[2])
         return "Login failed.\n";
@@ -46,7 +47,7 @@ string Login(const vector<string> &args, map<string, User> &data, User &user) {
 }
 
 string Logout(const vector<string> &args, map<string, User> &data, User &user) {
-    cout << "Receive request: Login\n";
+    cout << "Receive request: logout\n";
 
     if (user.username.empty())
         return "Please login first.\n";
@@ -55,4 +56,26 @@ string Logout(const vector<string> &args, map<string, User> &data, User &user) {
     string tmp = user.username;
     user = User();
     return "Bye, " + tmp + ".\n";
+}
+
+string Whoami(const vector<string> &args, map<string, User> &data, User &user) {
+    cout << "Receive request: whoami\n";
+
+    if (user.username.empty())
+        return "Please login first\n";
+
+    return user.username + "\n";
+}
+
+string ListUser(const vector<string> &args, map<string, User> &data) {
+    cout << "Receive request: list-user\n";
+
+    string users;
+    stringstream ss;
+    for (const auto &it : data) {
+        ss << it.first << "\n";
+    }
+    users = ss.str();
+
+    return users;
 }
