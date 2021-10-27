@@ -20,7 +20,7 @@ string Exit(const vector<string> &args, map<string, User> &data, User &user);
 
 string Register(const vector<string> &args, map<string, User> &data) {
     cout << "Receive request: register\n";
-    if (args.size() < 3)
+    if (args.size() != 3)
         return "Usage: register <username> <password>\n";
     if (data.find(args[1]) != data.end())
         return "Username is already used.\n";
@@ -33,8 +33,8 @@ string Register(const vector<string> &args, map<string, User> &data) {
 
 string Login(const vector<string> &args, map<string, User> &data, User &user) {
     cout << "Receive request: login\n";
-    if (args.size() < 3)
-        return "Usage: Login <username> <password>\n";
+    if (args.size() != 3)
+        return "Usage: login <username> <password>\n";
     if (!user.username.empty())
         return "Please logout first.\n";
     if (data.find(args[1]) == data.end() || data[args[1]].pass != args[2])
@@ -81,7 +81,7 @@ string ListUser(const vector<string> &args, map<string, User> &data) {
 }
 
 string Exit(const vector<string> &args, map<string, User> &data, User &user) {
-    cout << "Receive request: list-user\n";
+    cout << "Receive request: exit\n";
 
     if (!user.username.empty()) {
         data[user.username].login = false;

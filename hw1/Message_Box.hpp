@@ -1,7 +1,14 @@
+#ifndef _User_
+#define _User_
+#include "User.hpp"
+#endif
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <list>
+#include <map>
+#include <sstream>
 
 using namespace std;
 
@@ -11,7 +18,7 @@ string Receive(const vector<string> &args, map<string, User> &data, User &user);
 
 string Send(const vector<string> &args, map<string, User> &data, User &user) {
     cout << "Receive request: send\n";
-    if (args.size() < 3)
+    if (args.size() != 3)
         return "Usage: send <username> <message>\n";
     if (user.username.empty())
         return "Please login first.\n";
@@ -43,15 +50,20 @@ string ListMsg(const vector<string> &args, map<string, User> &data, User &user) 
 
 string Receive(const vector<string> &args, map<string, User> &data, User &user) {
     cout << "Receive request: receive\n";
+    if (args.size() != 2)
+        return "Usage: receive <username>\n";
     if (user.username.empty())
         return "Please login first.\n";
     if (data.find(args[1]) == data.end())
         return "User not existed.\n";
     if (user.msgbox.find(args[1]) == user.msgbox.end())
-        return "No new message from this user.\n";
+        return "";
 
     string msg = user.msgbox[args[1]].front();
     user.msgbox[args[1]].pop_front();
+    if (user.msgbox[args[1]].empty())
+        user.msgbox.erase(args[1]);
+
     data[user.username] = user;
     return msg + "\n";
 }

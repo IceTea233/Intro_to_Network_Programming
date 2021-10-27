@@ -52,10 +52,11 @@ vector<string> GetArg(char *input) {
 }
 
 string CmdHint() {
-    stringstream ss;
-    cout << "Received illegal command.\n";
-    string ret = "Usage: register, login, logout, whoami, list-user, exit, send, list-msg, receive\n";
-    return ret;
+    // stringstream ss;
+    // cout << "Received illegal command.\n";
+    // string ret = "Usage: register, login, logout, whoami, list-user, exit, send, list-msg, receive\n";
+    // return ret;
+    return "";
 }
 
 int Handle(char *input, char *buff, int buff_len) {
