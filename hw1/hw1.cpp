@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define MAXLINE 1000
+#define MAXLINE 10000
 #define LISTENQ 16
 // #define PORT 8888
 
@@ -51,6 +51,7 @@ int main(int argn, char **argv) {
                     read(connfd, ibuff, sizeof(ibuff));
                     if (strlen(ibuff) == 0)
                         throw "Empty input.";
+
                     int code = Handle(ibuff, obuff, sizeof(obuff));
                     write(connfd, obuff, strlen(obuff));
                     if (code == 1)

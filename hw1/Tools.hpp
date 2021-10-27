@@ -46,6 +46,9 @@ vector<string> GetArg(char *input) {
                 }
             }
         }
+
+        if (!isprint(input[i]))
+            ret.push_back("\n");
     }
 
     return ret;
@@ -63,38 +66,50 @@ int Handle(char *input, char *buff, int buff_len) {
     static map<string, User> data;
     static User user;
     int code = 0;
-    memset(buff, 0, sizeof(buff));
-    vector<string> args = GetArg(input);
+    memset(buff, 0, buff_len);
+    vector<string> args_arr = GetArg(input);
 
-    string res;
-    if (args.empty()) {
-        res = CmdHint();
-        strncpy(buff, res.c_str(), buff_len);
-    } else {
-        string ret;
-        if (args[0] == "register") {
-            res = Register(args, data);
-        } else if (args[0] == "login") {
-            res = Login(args, data, user);
-        } else if (args[0] == "logout") {
-            res = Logout(args, data, user);
-        } else if (args[0] == "whoami") {
-            res = Whoami(args, data, user);
-        } else if (args[0] == "list-user") {
-            res = ListUser(args, data);
-        } else if (args[0] == "exit") {
-            res = Exit(args, data, user);
-            code = 1;
-        } else if (args[0] == "send") {
-            res = Send(args, data, user);
-        } else if (args[0] == "list-msg") {
-            res = ListMsg(args, data, user);
-        } else if (args[0] == "receive") {
-            res = Receive(args, data, user);
+    vector<string> args;
+    for (auto it : args_arr) {
+        if (it == "\n") {
+            string res;
+            if (args.empty()) {
+                res = CmdHint();
+                strncat(buff, res.c_str(), buff_len);
+            } else {
+                string ret;
+                if (args[0] == "register") {
+                    res = Register(args, data);
+                } else if (args[0] == "login") {
+                    res = Login(args, data, user);
+                } else if (args[0] == "logout") {
+                    res = Logout(args, data, user);
+                } else if (args[0] == "whoami") {
+                    res = Whoami(args, data, user);
+                } else if (args[0] == "list-user") {
+                    res = ListUser(args, data);
+                } else if (args[0] == "exit") {
+                    res = Exit(args, data, user);
+                    code = 1;
+                } else if (args[0] == "send") {
+                    res = Send(args, data, user);
+                } else if (args[0] == "list-msg") {
+                    res = ListMsg(args, data, user);
+                } else if (args[0] == "receive") {
+                    res = Receive(args, data, user);
+                } else {
+                    res = CmdHint();
+                }
+                strncat(buff, res.c_str(), buff_len);
+            }
+
+            if (code == 1)
+                return code;
+            args.clear();
         } else {
-            res = CmdHint();
+            args.push_back(it);
         }
-        strncpy(buff, res.c_str(), buff_len);
     }
-    return code;
+
+    return 0;
 }
