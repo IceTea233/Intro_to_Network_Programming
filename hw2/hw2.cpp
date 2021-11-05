@@ -13,29 +13,41 @@
 
 using namespace std;
 
+int Init(int *listenfd, sockaddr_in *srvaddr, int port) {
+    *listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    srvaddr->sin_family = AF_INET;
+    srvaddr->sin_addr.s_addr = htonl(INADDR_ANY);
+    srvaddr->sin_port = htons(port);
 
+    if (bind(*listenfd, (sockaddr *) srvaddr, sizeof(*srvaddr)) == 0)
+        printf("[+]bind\n");
+    else
+        return -1;
+    if (listen(*listenfd, LISTENQ) == 0)
+        printf("[+]listen\n");
+    else
+        return -1;
+    printf("server is running\n");
+    return 0;
+}
 
 int main(int argn, char **argv) {
+    int i,j;
+    int listenfd, maxi, maxfd, connfd;
     sockaddr_in srvaddr, cliaddr;
     socklen_t len = sizeof(cliaddr);
     char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
     int port;
+
     sscanf(argv[1], "%d", &port);
 
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    srvaddr.sin_family = AF_INET;
-    srvaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    srvaddr.sin_port = htons(port);
-
-    if (bind(sockfd, (sockaddr *) &srvaddr, sizeof(srvaddr)) == 0)
-        printf("[+]bind\n");
-    if (listen(sockfd, LISTENQ) == 0)
-        printf("[+]listen\n");
-    printf("server is running\n");
+    if (Init(&listenfd, &srvaddr, port) != 0) {
+        perror("Server terminated.\n");
+        return 0;
+    }
 
     for (;;) {
-        int connfd;
-        if ((connfd = accept(sockfd, (sockaddr *) &cliaddr, &len)) != -1) {
+        if ((connfd = accept(listen, (sockaddr *) &cliaddr, &len)) != -1) {
             printf("Connect from %s:%d\n",
             inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
             ntohs(cliaddr.sin_port));
