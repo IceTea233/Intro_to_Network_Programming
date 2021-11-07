@@ -9,7 +9,6 @@
 
 #define MAXLINE 10000
 #define LISTENQ 16
-#define FD_SETSIZE 16
 // #define PORT 8888
 
 using namespace std;
@@ -55,18 +54,18 @@ int main(int argn, char **argv) {
     for (i = 0; i < FD_SETSIZE; i++) {
         client[i] = -1;
     }
-    fd_zero(&allset);
-    fd_set(listenfd, &allset);
+    FD_ZERO(&allset);
+    FD_SET(listenfd, &allset);
 
     for (;;) {
         rset  = allset;
         nready = select(maxfd + 1, &rset, NULL, NULL, NULL);
 
-        if (fd_isset(listenfd, &rset)) {
+        if (FD_ISSET(listenfd, &rset)) {
             len = sizeof(cliaddr);
-            connfd = accept(listenfd, (sockaddr *) &cliaddr, &clilen);
+            connfd = accept(listenfd, (sockaddr *) &cliaddr, &len);
 
-            for (i = 0; i < fd_setsize; i++) {
+            for (i = 0; i < FD_SETSIZE; i++) {
 
             }
         }
