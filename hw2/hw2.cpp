@@ -9,6 +9,7 @@
 
 #define MAXLINE 10000
 #define LISTENQ 16
+#define FD_SETSIZE 16
 // #define PORT 8888
 
 using namespace std;
@@ -27,6 +28,7 @@ int Init(int *listenfd, sockaddr_in *srvaddr, int port) {
         printf("[+]listen\n");
     else
         return -1;
+
     printf("server is running\n");
     return 0;
 }
@@ -34,6 +36,9 @@ int Init(int *listenfd, sockaddr_in *srvaddr, int port) {
 int main(int argn, char **argv) {
     int i,j;
     int listenfd, maxi, maxfd, connfd;
+    int nready, client[FD_SETSIZE];
+    ssize_t n;
+    fd_set rset, allset;
     sockaddr_in srvaddr, cliaddr;
     socklen_t len = sizeof(cliaddr);
     char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
@@ -45,41 +50,26 @@ int main(int argn, char **argv) {
         perror("Server terminated.\n");
         return 0;
     }
+    maxfd = listenfd;
+    maxi = -1;
+    for (i = 0; i < FD_SETSIZE; i++) {
+        client[i] = -1;
+    }
+    fd_zero(&allset);
+    fd_set(listenfd, &allset);
 
     for (;;) {
-        if ((connfd = accept(listen, (sockaddr *) &cliaddr, &len)) != -1) {
-            printf("Connect from %s:%d\n",
-            inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
-            ntohs(cliaddr.sin_port));
+        rset  = allset;
+        nready = select(maxfd + 1, &rset, NULL, NULL, NULL);
 
-            snprintf(obuff, sizeof(obuff), "********************************\n** Welcome to the BBS server. **\n********************************\n");
-            write(connfd, obuff, strlen(obuff));
+        if (fd_isset(listenfd, &rset)) {
+            len = sizeof(cliaddr);
+            connfd = accept(listenfd, (sockaddr *) &cliaddr, &clilen);
 
-            for (;;) {
-                try {
-                    snprintf(obuff, sizeof(obuff), "%% ");
-                    write(connfd, obuff, strlen(obuff));
-                    memset(ibuff, 0, sizeof(ibuff));
-                    read(connfd, ibuff, sizeof(ibuff));
-                    if (strlen(ibuff) == 0)
-                        throw "Empty input.";
-
-                    int code = Handle(ibuff, obuff, sizeof(obuff));
-                    write(connfd, obuff, strlen(obuff));
-                    if (code == 1)
-                        break;
-                } catch(...) {
-                    printf("Unexpected event.\n");
-                    break;
-                }
+            for (i = 0; i < fd_setsize; i++) {
 
             }
-            close(connfd);
         }
-
-        printf("Disonnect from %s:%d\n",
-            inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
-            ntohs(cliaddr.sin_port));
     }
 
     return 0;
