@@ -23,6 +23,7 @@ int Init(int *listenfd, sockaddr_in *srvaddr, int port) {
         printf("[+]bind\n");
     else
         return -1;
+
     if (listen(*listenfd, LISTENQ) == 0)
         printf("[+]listen\n");
     else
