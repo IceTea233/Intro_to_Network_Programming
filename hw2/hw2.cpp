@@ -33,7 +33,7 @@ int Init(int *listenfd, sockaddr_in *srvaddr, int port) {
     return 0;
 }
 
-void ConnectClient(int listenfd, int *maxfd, int *client, int *nclient, fd_set *allset, sockaddr_in *cliaddr, int *nready) {
+int ConnectClient(int listenfd, int *maxfd, int *client, int *nclient, fd_set *allset, sockaddr_in *cliaddr) {
     int i;
     int connfd;
     socklen_t clilen;
@@ -57,8 +57,7 @@ void ConnectClient(int listenfd, int *maxfd, int *client, int *nclient, fd_set *
         *maxfd = connfd;
     if (i + 1 > *nclient)
         *nclient = i + 1;
-
-    *nready--;
+    return connfd;
 }
 
 int main(int argn, char **argv) {
@@ -90,24 +89,30 @@ int main(int argn, char **argv) {
         nready = select(maxfd + 1, &ready, NULL, NULL, NULL); // select ready fd from all fd
 
         if (FD_ISSET(listenfd, &ready)) {
-            ConnectClient(listenfd, &maxfd, client, &nclient, &allset, &cliaddr, &nready);
-            if (nready <= 0)
+            sockfd = ConnectClient(listenfd, &maxfd, client, &nclient, &allset, &cliaddr);
+            printf("Connect with a client through socket (fd = %d)\n", sockfd);
+            if (--nready <= 0)
                 continue;
         }
         for (i = 0; i < nclient; i++) {
-            if ( (sockfd = client[i]) == -1)
+            if ((sockfd = client[i]) == -1)
                 continue;
             if (FD_ISSET(sockfd, &ready)) {
                 n = read(sockfd, ibuff, MAXLINE);
                 if (n == 0) {
                     close(sockfd);
                     FD_CLR(sockfd, &allset);
+                    printf("Closed socket (fd = %d)\n", sockfd);
                     client[i] = -1;
                 } else {
-                    sprintf(obuff, "%s", obuff);
+                    ibuff[n] = '\0';
+                    snprintf(obuff, sizeof(obuff), "%s", ibuff);
                     printf("received message: %s\n", obuff);
                     write(sockfd, obuff, strlen(obuff));
                 }
+
+                if (--nready <= 0)
+                    break;
             }
         }
     }
