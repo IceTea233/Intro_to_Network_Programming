@@ -33,14 +33,41 @@ int Init(int *listenfd, sockaddr_in *srvaddr, int port) {
     return 0;
 }
 
+void ConnectClient(int listenfd, int *maxfd, int *client, int *nclient, fd_set *rset, fd_set *allset, sockaddr_in *cliaddr, int *nready) {
+    int i;
+    int connfd;
+    socklen_t clilen;
+
+    clilen = sizeof(cliaddr);
+    connfd = accept(listenfd, (sockaddr *) cliaddr, &clilen);
+
+    for (i = 0; i < FD_SETSIZE; i++) {
+        if (client[i] == -1) {
+            client[i] = connfd;
+            break;
+        }
+    }
+    if (i == FD_SETSIZE) {
+        printf("Too many clients\n");
+        exit(-1);
+    }
+
+    FD_SET(connfd, allset);
+    if (connfd > *maxfd)
+        *maxfd = connfd;
+    if (i + 1 > *nclient)
+        *nclient = i + 1;
+
+    *nready--;
+}
+
 int main(int argn, char **argv) {
     int i,j;
-    int listenfd, maxi, maxfd, connfd;
-    int nready, client[FD_SETSIZE];
+    int listenfd, maxfd, sockfd;
+    int nready, nclient, client[FD_SETSIZE];
     ssize_t n;
     fd_set rset, allset;
     sockaddr_in srvaddr, cliaddr;
-    socklen_t len = sizeof(cliaddr);
     char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
     int port;
 
@@ -51,7 +78,8 @@ int main(int argn, char **argv) {
         return 0;
     }
     maxfd = listenfd;
-    maxi = -1;
+    printf("listenfd = %d\n", listenfd);
+    nclient = 0;
     for (i = 0; i < FD_SETSIZE; i++) {
         client[i] = -1;
     }
@@ -59,15 +87,19 @@ int main(int argn, char **argv) {
     FD_SET(listenfd, &allset);
 
     for (;;) {
-        rset  = allset;
+        rset = allset;
         nready = select(maxfd + 1, &rset, NULL, NULL, NULL);
 
         if (FD_ISSET(listenfd, &rset)) {
-            len = sizeof(cliaddr);
-            connfd = accept(listenfd, (sockaddr *) &cliaddr, &len);
-
-            for (i = 0; i < FD_SETSIZE; i++) {
-
+            ConnectClient(listenfd, &maxfd, client, &nclient, &rset, &allset, &cliaddr, &nready);
+            if (nready <= 0)
+                continue;
+        }
+        for (i = 0; i < nclient; i++) {
+            if ( (sockfd = client[i]) == -1)
+                continue;
+            if (FD_ISSET(sockfd, &rset)) {
+                // TODO
             }
         }
     }
