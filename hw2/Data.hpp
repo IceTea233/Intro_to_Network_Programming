@@ -12,3 +12,16 @@ struct User {
     User(): username(""), pass(""), login(false) {};
     User(std::string arg1, std::string arg2): username(arg1), pass(arg2), login(false){};
 };
+
+struct Post {
+    int id;
+    std::string name;
+    std::string content;
+};
+
+struct Board {
+    int id;
+    std::string name;
+    std::string moderator;
+    std::vector<Post> posts;
+};

@@ -131,7 +131,8 @@ int Handle(char *input, char *buff, int buff_len) {
                     res = ListMsg(args, data, user);
                 } else if (args[0] == "receive") {
                     res = Receive(args, data, user);
-                } else {
+                }
+                else {
                     res = CmdHint();
                 }
                 strncat(buff, res.c_str(), buff_len);

@@ -1,6 +1,6 @@
-#ifndef _User_
-#define _User_
-#include "User.hpp"
+#ifndef _Data_
+#define _Data_
+#include "Data.hpp"
 #endif
 
 #include <iostream>
