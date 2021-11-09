@@ -17,12 +17,11 @@ struct Info {
 
 struct User : Info {
     std::string pass;
-    bool login;
     std::map<std::string, std::list<std::string>> msgbox;
 
-    User(): Info(), pass(""), login(false) {};
-    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3), login(false) {};
-    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2), login(false) {};
+    User(): Info(), pass("") {};
+    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3) {};
+    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2) {};
 };
 
 struct Post : Info {
@@ -58,6 +57,18 @@ struct Infoset {
         } else { // temporary error detection
             std::cerr << "An unsuppored object has been attempted to add into the dataset and failed.\n";
         }
+    }
+    bool exist(std::string s) {
+        return dic.find(s) != dic.end();
+    }
+    int get_id(std::string s) {
+        return dic[s];
+    }
+    T get(std::string s) {
+        return infos[get_id(s)];
+    }
+    T get(int uid) {
+        return infos[uid];
     }
 };
 

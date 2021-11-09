@@ -1,5 +1,5 @@
-#ifndef _User_
-#define _User_
+#ifndef _DATA_HPP_
+#define _DATA_HPP_
 #include "Data.hpp"
 #endif
 
@@ -12,31 +12,34 @@
 
 using namespace std;
 
-string Send(const vector<string> &args, map<string, User> &data, User &user);
-string ListMsg(const vector<string> &args, map<string, User> &data, User &user);
-string Receive(const vector<string> &args, map<string, User> &data, User &user);
+string Send(const vector<string> &args, Data &data, int &uid);
+string ListMsg(const vector<string> &args, Data &data, int &uid);
+string Receive(const vector<string> &args, Data &data, int &uid);
 
-string Send(const vector<string> &args, map<string, User> &data, User &user) {
+string Send(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: send\n";
     if (args.size() != 3)
         return "Usage: send <username> <message>\n";
-    if (user.username.empty())
+
+    if (uid == -1)
         return "Please login first.\n";
-    if (data.find(args[1]) == data.end())
+    if (data.users.exist(args[2]))
         return "User not existed.\n";
 
-    data[args[1]].msgbox[user.username].push_back(args[2]);
+    User *user = &(data.users.infos[uid]);
+    user->msgbox[user->name].push_back(args[2]);
     return "";
 }
 
-string ListMsg(const vector<string> &args, map<string, User> &data, User &user) {
+string ListMsg(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: list-msg\n";
-    if (user.username.empty())
+    if (uid == -1)
         return "Please login first.\n";
 
     string msgs;
     stringstream ss;
 
+    User user = data.users.get(uid);
     if (user.msgbox.empty())
         return "Your message box is empty.\n";
 
@@ -48,22 +51,23 @@ string ListMsg(const vector<string> &args, map<string, User> &data, User &user) 
     return msgs;
 }
 
-string Receive(const vector<string> &args, map<string, User> &data, User &user) {
+string Receive(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: receive\n";
     if (args.size() != 2)
         return "Usage: receive <username>\n";
-    if (user.username.empty())
+    if (uid == -1)
         return "Please login first.\n";
-    if (data.find(args[1]) == data.end())
+    if (!data.users.exist(args[1]))
         return "User not existed.\n";
-    if (user.msgbox.find(args[1]) == user.msgbox.end())
+
+    User *user = &(data.users.infos[uid]);
+    if (user->msgbox.find(args[1]) == user->msgbox.end())
         return "";
 
-    string msg = user.msgbox[args[1]].front();
-    user.msgbox[args[1]].pop_front();
-    if (user.msgbox[args[1]].empty())
-        user.msgbox.erase(args[1]);
-
-    data[user.username] = user;
+    string msg = user->msgbox[args[1]].front();
+    user->msgbox[args[1]].pop_front();
+    if (user->msgbox[args[1]].empty())
+        user->msgbox.erase(args[1]);
+    
     return msg + "\n";
 }

@@ -1,9 +1,13 @@
+#ifndef _BASIC_HPP_
+#define _BASIC_HPP_
 #include "Basic.hpp"
+#endif
+
 #include "Message_Box.hpp"
 
-#ifndef _User_
-#define _User_
-#include "User.hpp"
+#ifndef _DATA_HPP_
+#define _DATA_HPP_
+#include "Data.hpp"
 #endif
 
 #include <iostream>
@@ -13,6 +17,7 @@
 #include <sstream>
 #include <cstring>
 #include <cctype>
+#define MAXFD 16
 
 using namespace std;
 
@@ -71,6 +76,9 @@ vector<string> GetArg(char *input) {
                 buff.clear();
             }
         }
+
+        if (!isprint(input[i]))
+            ret.push_back("\n");
     }
 
     if (!buff.empty())
@@ -92,13 +100,14 @@ string CmdHint() {
 }
 
 int Handle(int sockfd, char *input, char *buff, int buff_len) {
-    static Data;
+    static Data data;
+    static vector<int> client(MAXFD, -1);
     int code = 0;
     memset(buff, 0, buff_len);
     vector<string> args_arr = GetArg(input);
     cout << "read args: ";
     for (auto it : args_arr) {
-        cout << " {" << it << "}";
+        cout << " {" << (it == "\n" ? "\'\\n\'" : it) << "}";
     }
     cout << "\n";
 
@@ -112,24 +121,24 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
             } else {
                 string ret;
                 if (args[0] == "register") {
-                    res = Register(args, data);
+                    printf("register executed\n");
                 } else if (args[0] == "login") {
-                    res = Login(args, data, user);
+                    res = Login(args, data, client[sockfd]);
                 } else if (args[0] == "logout") {
-                    res = Logout(args, data, user);
+                    res = Logout(args, data, client[sockfd]);
                 } else if (args[0] == "whoami") {
-                    res = Whoami(args, data, user);
+                    res = Whoami(args, data, client[sockfd]);
                 } else if (args[0] == "list-user") {
                     res = ListUser(args, data);
                 } else if (args[0] == "exit") {
-                    res = Exit(args, data, user);
+                    res = Exit(args, data, client[sockfd]);
                     code = 1;
                 } else if (args[0] == "send") {
-                    res = Send(args, data, user);
+                    res = Send(args, data, client[sockfd]);
                 } else if (args[0] == "list-msg") {
-                    res = ListMsg(args, data, user);
+                    res = ListMsg(args, data, client[sockfd]);
                 } else if (args[0] == "receive") {
-                    res = Receive(args, data, user);
+                    res = Receive(args, data, client[sockfd]);
                 }
                 else {
                     res = CmdHint();
