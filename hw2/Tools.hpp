@@ -121,7 +121,7 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
             } else {
                 string ret;
                 if (args[0] == "register") {
-                    printf("register executed\n");
+                    res = Register(args, data);
                 } else if (args[0] == "login") {
                     res = Login(args, data, client[sockfd]);
                 } else if (args[0] == "logout") {
@@ -131,9 +131,9 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
                 } else if (args[0] == "list-user") {
                     res = ListUser(args, data);
                 } else if (args[0] == "exit") {
-                    res = Exit(args, data, client[sockfd]);
+                    res = Exit(args, data, client[sockfd]); // TODO: end client
                     code = 1;
-                } else if (args[0] == "send") {
+                } else if (args[0] == "send") { // TODO: Message_Box features
                     res = Send(args, data, client[sockfd]);
                 } else if (args[0] == "list-msg") {
                     res = ListMsg(args, data, client[sockfd]);

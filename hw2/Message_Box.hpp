@@ -68,6 +68,6 @@ string Receive(const vector<string> &args, Data &data, int &uid) {
     user->msgbox[args[1]].pop_front();
     if (user->msgbox[args[1]].empty())
         user->msgbox.erase(args[1]);
-    
+
     return msg + "\n";
 }
