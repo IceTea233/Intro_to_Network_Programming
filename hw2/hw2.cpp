@@ -91,6 +91,10 @@ int main(int argn, char **argv) {
         if (FD_ISSET(listenfd, &ready)) {
             sockfd = ConnectClient(listenfd, &maxfd, client, &nclient, &allset, &cliaddr);
             printf("Connect with a client through socket (fd = %d)\n", sockfd);
+            strcpy(obuff, "********************************\n");
+            strcat(obuff, "** Welcome to the BBS server. **\n");
+            strcat(obuff, "********************************\n");
+            write(sockfd, obuff, strlen(obuff));
             if (--nready <= 0)
                 continue;
         }
@@ -106,9 +110,10 @@ int main(int argn, char **argv) {
                     client[i] = -1;
                 } else {
                     ibuff[n] = '\0';
-                    snprintf(obuff, sizeof(obuff), "%s", ibuff);
-                    printf("received message: %s\n", obuff);
-                    write(sockfd, obuff, strlen(obuff));
+                    // snprintf(obuff, sizeof(obuff), "echo: %s", ibuff);
+                    Handle(ibuff, obuff, sizeof(obuff));
+                    // printf("received message: %s\n", ibuff);
+                    // write(sockfd, obuff, strlen(obuff));
                 }
 
                 if (--nready <= 0)

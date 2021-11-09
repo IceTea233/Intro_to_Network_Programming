@@ -18,18 +18,15 @@ using namespace std;
 
 vector<string> GetArg(char *input) {
     string buff;
+    string long_buff;
     vector<string> ret;
-    bool flag = false;
+    int flag = 0;
+    // 0: normal.
+    // 1: quoted - Simply copy the raw content in two quotation, exclusive of the quotation symbol.
+    // 2: string argument - Any non-graph character is regarded as a space character. Detection depends on --flag.
+
     for (int i=0; input[i] != '\0'; i++) {
-        if (flag) {
-            if (input[i] == '\"') {
-                ret.push_back(buff);
-                buff.clear();
-                flag = false;
-            } else {
-                buff.push_back(input[i]);
-            }
-        } else {
+        if (flag == 0) {
             if (input[i] == '\"') {
                 if (!buff.empty()) {
                     ret.push_back(buff);
@@ -42,13 +39,45 @@ vector<string> GetArg(char *input) {
             } else {
                 if (!buff.empty()) {
                     ret.push_back(buff);
+                    if (buff.size() >= 2 && buff.substr(0, 2) == "--") {
+                        long_buff.clear();
+                        flag = 2;
+                    }
                     buff.clear();
                 }
             }
+        } else if (flag == 1) {
+            if (input[i] == '\"') {
+                ret.push_back(buff);
+                buff.clear();
+                flag = false;
+            } else {
+                buff.push_back(input[i]);
+            }
+        } else if (flag == 2) {
+            if (isgraph(input[i])) {
+                buff.push_back(input[i]);
+            } else {
+                if (buff.size() >= 2 && buff.substr(0, 2) == "--") {
+                    if (!long_buff.empty()) {
+                        long_buff.pop_back();
+                        ret.push_back(long_buff);
+                    }
+                    long_buff.clear();
+                    ret.push_back(buff);
+                } else {
+                    long_buff.append(buff + ' ');
+                }
+                buff.clear();
+            }
         }
+    }
 
-        if (!isprint(input[i]))
-            ret.push_back("\n");
+    if (!buff.empty())
+        long_buff.append(buff);
+    if (!long_buff.empty()) {
+        long_buff.pop_back();
+        ret.push_back(long_buff);
     }
 
     return ret;
@@ -68,6 +97,11 @@ int Handle(char *input, char *buff, int buff_len) {
     int code = 0;
     memset(buff, 0, buff_len);
     vector<string> args_arr = GetArg(input);
+    cout << "read args: ";
+    for (auto it : args_arr) {
+        cout << " {" << it << "}";
+    }
+    cout << "\n";
 
     vector<string> args;
     for (auto it : args_arr) {
