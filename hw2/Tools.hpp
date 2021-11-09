@@ -91,9 +91,8 @@ string CmdHint() {
     return "";
 }
 
-int Handle(char *input, char *buff, int buff_len) {
-    static map<string, User> data;
-    static User user;
+int Handle(int sockfd, char *input, char *buff, int buff_len) {
+    static Data;
     int code = 0;
     memset(buff, 0, buff_len);
     vector<string> args_arr = GetArg(input);
