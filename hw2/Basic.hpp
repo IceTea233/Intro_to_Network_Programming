@@ -117,7 +117,7 @@ string CreateBoard(const vector<string> &args, Data &data, int &uid) {
 
     Board board(args[1], data.users.access(uid));
     data.add_board(board);
-    cout << "Create a new Board: " << board.name << "; Moderator: " << board.moderator->name;
+    cout << "Create a new Board: " << board.name << "; Moderator: " << board.moderator->name << "\n";
 
     return "Create board successfully.\n";
 }

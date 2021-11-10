@@ -21,6 +21,18 @@
 
 using namespace std;
 
+void push_in(vector<string> &ret, string &buff, string &long_buff) {
+    if (!buff.empty()) {
+        long_buff.append(buff);
+        buff.clear();
+    }
+    if (!long_buff.empty()) {
+        long_buff.pop_back();
+        ret.push_back(long_buff);
+        long_buff.clear();
+    }
+}
+
 vector<string> GetArg(char *input) {
     string buff;
     string long_buff;
@@ -77,16 +89,14 @@ vector<string> GetArg(char *input) {
             }
         }
 
-        if (!isprint(input[i]))
+        if (!isprint(input[i])) {
+            push_in(ret, buff, long_buff);
             ret.push_back("\n");
+            flag = 0;
+        }
     }
 
-    if (!buff.empty())
-        long_buff.append(buff);
-    if (!long_buff.empty()) {
-        long_buff.pop_back();
-        ret.push_back(long_buff);
-    }
+    push_in(ret, buff, long_buff);
 
     return ret;
 }
@@ -100,14 +110,16 @@ string CmdHint() {
 }
 
 int Handle(int sockfd, char *input, char *buff, int buff_len) {
-    static Data data;
-    static vector<int> client(MAXFD, -1);
+    static Data data; // All information is saved in data.
+    static vector<int> client(MAXFD, -1); // Indicate which account the interested client is currently using.
 
     memset(buff, 0, buff_len);
     vector<string> args_arr = GetArg(input);
     cout << "read args: ";
     for (auto it : args_arr) {
         cout << " {" << (it == "\n" ? "\'\\n\'" : it) << "}";
+        if (it == "\n")
+            cout << "\n";
     }
     cout << "\n";
 
@@ -140,7 +152,16 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
                     res = ListMsg(args, data, client[sockfd]);
                 } else if (args[0] == "receive") {
                     res = Receive(args, data, client[sockfd]);
-                } else {
+                } else if (args[0] == "create-board") {
+                    res = CreateBoard(args, data, client[sockfd]);
+                } else if (args[0] == "create-post") {
+                    res = CreatePost(args, data, client[sockfd]);
+                } else if (args[0] == "list-board") {
+                    res = ListBoard(args, data);
+                } else if (args[0] == "list-post") {
+                    res = ListPost(args, data);
+                }
+                else {
                     res = CmdHint();
                 }
                 strncat(buff, res.c_str(), buff_len);
