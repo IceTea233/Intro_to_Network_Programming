@@ -11,14 +11,24 @@
 
 using namespace std;
 
+// Account Administration
 string Register(const vector<string> &args, Data &data);
 string Login(const vector<string> &args, Data &data, int &uid);
 string Logout(const vector<string> &args, Data &data, int &uid);
-string Whoami(const vector<string> &args, Data &data, int &user);
+string Whoami(const vector<string> &args, Data &data, int &uid);
 string ListUser(const vector<string> &args, Data &data);
 string Exit(const vector<string> &args, Data &data, int &uid);
 
-// TODO: upd struct
+// Board Operations
+string CreateBoard(const vector<string> &args, Data &data, int &uid);
+string CreatePost(const vector<string> &args, Data &data, int &uid);
+string ListBoard(const vector<string> &args, Data &data);
+string ListPost(const vector<string> &args, Data &data);
+string Read(const vector<string> &args, Data &data);
+string DeletePost(const vector<string> &args, Data &data, int &uid);
+string UpdatePost(const vector<string> &args, Data &data, int &uid);
+string Comment(const vector<string> &args, Data &data, int &uid);
+
 string Register(const vector<string> &args, Data &data) {
     cout << "Receive request: register\n";
     if (args.size() != 3)
