@@ -102,7 +102,7 @@ string CmdHint() {
 int Handle(int sockfd, char *input, char *buff, int buff_len) {
     static Data data;
     static vector<int> client(MAXFD, -1);
-    int code = 0;
+
     memset(buff, 0, buff_len);
     vector<string> args_arr = GetArg(input);
     cout << "read args: ";
@@ -111,6 +111,7 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
     }
     cout << "\n";
 
+    int code = 0;
     vector<string> args;
     for (auto it : args_arr) {
         if (it == "\n") {
@@ -133,14 +134,13 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
                 } else if (args[0] == "exit") {
                     res = Exit(args, data, client[sockfd]); // TODO: end client
                     code = 1;
-                } else if (args[0] == "send") { // TODO: Message_Box features
+                } else if (args[0] == "send") {
                     res = Send(args, data, client[sockfd]);
                 } else if (args[0] == "list-msg") {
                     res = ListMsg(args, data, client[sockfd]);
                 } else if (args[0] == "receive") {
                     res = Receive(args, data, client[sockfd]);
-                }
-                else {
+                } else {
                     res = CmdHint();
                 }
                 strncat(buff, res.c_str(), buff_len);

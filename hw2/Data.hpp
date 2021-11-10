@@ -70,6 +70,12 @@ struct Infoset {
     T get(int uid) {
         return infos[uid];
     }
+    T* access(std::string s) {
+        return &infos[get_id(s)];
+    }
+    T* access(int uid) {
+        return infos[uid];
+    }
 };
 
 struct Data {

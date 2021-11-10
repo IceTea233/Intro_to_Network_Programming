@@ -61,7 +61,7 @@ int ConnectClient(int listenfd, int *maxfd, int *client, int *nclient, fd_set *a
 }
 
 int main(int argn, char **argv) {
-    int i,j;
+    int i,j, code;
     int listenfd, maxfd, sockfd;
     int nready, nclient, client[FD_SETSIZE];
     ssize_t n;
@@ -110,10 +110,18 @@ int main(int argn, char **argv) {
                     printf("Closed socket (fd = %d)\n", sockfd);
                     client[i] = -1;
                 } else {
-                    Handle(sockfd, ibuff, obuff, sizeof(obuff));
-                    write(sockfd, obuff, strlen(obuff));
-                    snprintf(obuff, sizeof(obuff), "%% ");
-                    write(sockfd, obuff, strlen(obuff));
+                    ibuff[n] = '\0';
+                    code = Handle(sockfd, ibuff, obuff, sizeof(obuff));
+                    if (code == 0) {
+                        write(sockfd, obuff, strlen(obuff));
+                        snprintf(obuff, sizeof(obuff), "%% ");
+                        write(sockfd, obuff, strlen(obuff));
+                    } else {
+                        close(sockfd);
+                        FD_CLR(sockfd, &allset);
+                        printf("Closed socket (fd = %d)\n", sockfd);
+                        client[i] = -1;
+                    }
                 }
 
                 if (--nready <= 0)

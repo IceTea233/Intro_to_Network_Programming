@@ -23,11 +23,11 @@ string Send(const vector<string> &args, Data &data, int &uid) {
 
     if (uid == -1)
         return "Please login first.\n";
-    if (data.users.exist(args[2]))
+    if (!data.users.exist(args[1]))
         return "User not existed.\n";
 
-    User *user = &(data.users.infos[uid]);
-    user->msgbox[user->name].push_back(args[2]);
+    User *receiver = data.users.access(args[1]);
+    receiver->msgbox[data.users.get(uid).name].push_back(args[2]);
     return "";
 }
 
