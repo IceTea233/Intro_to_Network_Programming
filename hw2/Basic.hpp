@@ -21,7 +21,7 @@ string Exit(const vector<string> &args, Data &data, int &uid);
 
 // Board Operations
 string CreateBoard(const vector<string> &args, Data &data, int &uid);
-string CreatePost(const vector<string> &args, Data &data, int &uid);
+string CreatePost(const vector<string> &args, Data &data, int &uid); // TODO: Date tag
 string ListBoard(const vector<string> &args, Data &data);
 string ListPost(const vector<string> &args, Data &data);
 string Read(const vector<string> &args, Data &data);
@@ -102,4 +102,74 @@ string Exit(const vector<string> &args, Data &data, int &uid) {
     }
 
     return "";
+}
+
+// Implementation of Board functions.
+string CreateBoard(const vector<string> &args, Data &data, int &uid) {
+    cout << "Receive request: create-board\n";
+
+    if (args.size() != 2)
+        return "Usage: create-board <name>\n";
+    if (uid == -1)
+        return "Please login first.\n";
+    if (data.boards.exist(args[1]))
+        return "Board already exists.\n";
+
+    Board board(args[1], data.users.access(uid));
+    data.add_board(board);
+    cout << "Create a new Board: " << board.name << "; Moderator: " << board.moderator->name;
+
+    return "Create board successfully.\n";
+}
+
+string CreatePost(const vector<string> &args, Data &data, int &uid) {
+    cout << "Receive request: create-post\n";
+
+    if (!(args.size() == 6 && args[2] == "--title" && args[4] == "--content"))
+        return "Usage: create-post <board-name> --title <title> --content <content>\n";
+    if (uid == -1)
+        return "Please login first.\n";
+    if (!data.boards.exist(args[1]))
+        return "Board does not exist.\n";
+
+    Post post(args[3], args[5]);
+    Post *posted = data.add_post(post);
+    data.users.access(uid)->add_post(posted);
+    data.boards.access(args[1])->add_post(posted);
+
+    return "Create post successfully.\n";
+}
+
+string ListBoard(const vector<string> &args, Data &data) {
+    cout << "Receive request: list-board\n";
+
+
+    string board_list;
+    stringstream ss;
+    ss << "Index\tName\tModerator\n";
+    for (const auto &it : data.boards.infos) {
+        ss << it.first << "\t" << it.second.name << "\t" << it.second.moderator->name << "\n";
+    }
+    board_list = ss.str();
+
+    return board_list;
+}
+
+string ListPost(const vector<string> &args, Data &data) {
+    cout << "Receive request: list-post\n";
+
+    if (args.size() != 2)
+        return "Usage: list-post <board-name>\n";
+    if (!data.boards.exist(args[1]))
+        return "Board does not exist.\n";
+
+    string post_list;
+    stringstream ss;
+    ss << "S/N\tTitle\tAuthor\tData\n";
+    for (const auto post : data.boards.get(args[1]).posts) {
+        ss << post.first << "\t" << post.second->name << "\t" << post.second->author->name << "\n";
+    }
+    post_list = ss.str();
+
+    return post_list;
 }
