@@ -21,7 +21,7 @@ string Exit(const vector<string> &args, Data &data, int &uid);
 
 // Board Operations
 string CreateBoard(const vector<string> &args, Data &data, int &uid);
-string CreatePost(const vector<string> &args, Data &data, int &uid); // TODO: Date tag
+string CreatePost(const vector<string> &args, Data &data, int &uid); // TODO: Date stamp
 string ListBoard(const vector<string> &args, Data &data);
 string ListPost(const vector<string> &args, Data &data);
 string Read(const vector<string> &args, Data &data);
@@ -143,7 +143,6 @@ string CreatePost(const vector<string> &args, Data &data, int &uid) {
 string ListBoard(const vector<string> &args, Data &data) {
     cout << "Receive request: list-board\n";
 
-
     string board_list;
     stringstream ss;
     ss << "Index\tName\tModerator\n";
@@ -167,9 +166,31 @@ string ListPost(const vector<string> &args, Data &data) {
     stringstream ss;
     ss << "S/N\tTitle\tAuthor\tData\n";
     for (const auto post : data.boards.get(args[1]).posts) {
-        ss << post.first << "\t" << post.second->name << "\t" << post.second->author->name << "\n";
+        ss << post.first << "\t" << post.second->name << "\t" << post.second->author->name << "\t" << post.second->time.tm_mon << "/" << post.second->time.tm_mday << "\n";
     }
     post_list = ss.str();
 
     return post_list;
+}
+
+string Read(const vector<string> &args, Data &data) {
+    cout << "Receive requeste: read\n";
+
+    if (args.size() != 2)
+        return "Usage: read <post-S/N>\n";
+    if (!data.posts.exist(args[1]))
+        return "Post does not exist\n";
+
+    string content;
+    stringstream ss;
+
+    Post post = data.posts.get(args[1]);
+    ss << "Author: " << post.author->name << "\n";
+    ss << "Title: " << post.name << "\b";
+    ss << "Date: " << post.time.tm_mon << "/" << post.time.tm_mday << "\n";
+    ss << "--\n";
+
+    content = ss.str();
+    
+    return content;
 }

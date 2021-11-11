@@ -1,3 +1,4 @@
+#include <ctime>
 #include <string>
 #include <vector>
 #include <list>
@@ -23,6 +24,7 @@ struct Info {
 struct Post : Info {
     Board *board;
     User *author;
+    std::tm time;
     std::string content;
 
     Post(): Info(), board(NULL), author(NULL), content("") {};
@@ -79,6 +81,9 @@ struct Infoset {
     bool exist(std::string s) {
         return dic.find(s) != dic.end();
     }
+    bool exist(int id) {
+        return infos.find(id) != infos.end();
+    }
     int get_id(std::string s) {
         return dic[s];
     }
@@ -108,6 +113,9 @@ struct Data {
         return boards.add(&board);
     }
     Post* add_post(Post &post) {
-        return posts.add(&post);
+        Post* ret = posts.add(&post);
+        std::time_t t = std::time(nullptr);
+        ret->time = *std::localtime(&t);
+        return ret;
     }
 };
