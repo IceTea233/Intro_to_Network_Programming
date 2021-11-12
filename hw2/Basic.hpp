@@ -21,13 +21,13 @@ string Exit(const vector<string> &args, Data &data, int &uid);
 
 // Board Operations
 string CreateBoard(const vector<string> &args, Data &data, int &uid);
-string CreatePost(const vector<string> &args, Data &data, int &uid); // TODO: Date stamp
+string CreatePost(const vector<string> &args, Data &data, int &uid);
 string ListBoard(const vector<string> &args, Data &data);
 string ListPost(const vector<string> &args, Data &data);
 string Read(const vector<string> &args, Data &data);
-string DeletePost(const vector<string> &args, Data &data, int &uid);
-string UpdatePost(const vector<string> &args, Data &data, int &uid);
-string Comment(const vector<string> &args, Data &data, int &uid);
+string DeletePost(const vector<string> &args, Data &data, int &uid); // TODO
+string UpdatePost(const vector<string> &args, Data &data, int &uid); // TODO
+string Comment(const vector<string> &args, Data &data, int &uid); // TODO
 
 string Register(const vector<string> &args, Data &data) {
     cout << "Receive request: register\n";
@@ -174,23 +174,34 @@ string ListPost(const vector<string> &args, Data &data) {
 }
 
 string Read(const vector<string> &args, Data &data) {
-    cout << "Receive requeste: read\n";
+    cout << "Receive request: read\n";
 
     if (args.size() != 2)
         return "Usage: read <post-S/N>\n";
-    if (!data.posts.exist(args[1]))
+    if (!data.posts.exist(stoi(args[1])))
         return "Post does not exist\n";
 
-    string content;
     stringstream ss;
 
-    Post post = data.posts.get(args[1]);
+    Post post = data.posts.get(stoi(args[1]));
     ss << "Author: " << post.author->name << "\n";
-    ss << "Title: " << post.name << "\b";
+    ss << "Title: " << post.name << "\n";
     ss << "Date: " << post.time.tm_mon << "/" << post.time.tm_mday << "\n";
     ss << "--\n";
 
-    content = ss.str();
-    
-    return content;
+    string content;
+    for (auto ch : post.content) {
+        content.push_back(ch);
+        if (content.size() >= 4 && content.substr(content.size() - 4, 4) == "<br>")
+            content.replace(content.size() - 4, 4, "\n");
+    }
+    ss << content << "\n";
+    ss << "--\n";
+    for (auto comment : post.comments) {
+        ss << comment.second->from->name << ":" << comment.second->content << "\n";
+    }
+
+    string output = ss.str();
+
+    return output;
 }

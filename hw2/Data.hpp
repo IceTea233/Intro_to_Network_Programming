@@ -9,6 +9,7 @@ struct Info;
 struct User;
 struct Post;
 struct Board;
+struct Comment;
 
 struct Info {
     virtual ~Info() = default;
@@ -26,6 +27,7 @@ struct Post : Info {
     User *author;
     std::tm time;
     std::string content;
+    std::map<int,Comment*> comments;
 
     Post(): Info(), board(NULL), author(NULL), content("") {};
     Post(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), board(NULL), author(NULL), content(arg3) {};
@@ -59,6 +61,15 @@ struct Board : Info {
         post->board = this;
         posts[post->id] = post;
     }
+};
+
+struct Comment : Info {
+    User *from;
+    std::string content;
+
+    Comment(): Info(), from(NULL) {};
+    Comment(int arg1, std::string arg2, User *arg3): Info(arg1, arg2), from(arg3) {};
+    Comment(std::string arg1, User *arg2): Info(arg1), from(arg2) {};
 };
 
 template<typename T>
@@ -105,6 +116,7 @@ struct Data {
     Infoset<User> users;
     Infoset<Board> boards;
     Infoset<Post> posts;
+    Infoset<Comment> comments;
 
     User* add_user(User &user) {
         return users.add(&user);
@@ -117,5 +129,8 @@ struct Data {
         std::time_t t = std::time(nullptr);
         ret->time = *std::localtime(&t);
         return ret;
+    }
+    Comment* add_comment(Comment &comment) {
+        return comments.add(&comment);
     }
 };

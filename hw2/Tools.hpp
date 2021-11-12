@@ -144,7 +144,7 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
                 } else if (args[0] == "list-user") {
                     res = ListUser(args, data);
                 } else if (args[0] == "exit") {
-                    res = Exit(args, data, client[sockfd]); // TODO: end client
+                    res = Exit(args, data, client[sockfd]);
                     code = 1;
                 } else if (args[0] == "send") {
                     res = Send(args, data, client[sockfd]);
@@ -160,6 +160,8 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
                     res = ListBoard(args, data);
                 } else if (args[0] == "list-post") {
                     res = ListPost(args, data);
+                } else if (args[0] == "read") {
+                    res = Read(args, data);
                 }
                 else {
                     res = CmdHint();
