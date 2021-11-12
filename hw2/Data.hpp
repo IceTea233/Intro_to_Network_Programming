@@ -92,6 +92,16 @@ struct Infoset {
             return NULL;
         }
     }
+    void remove(std::string s) {
+        int id = get_id(s);
+        infos.erase(id);
+        dic.erase(s);
+    }
+    void remove(int id) {
+        std::string s = infos[id].name;
+        infos.erase(id);
+        dic.erase(s);
+    }
     bool exist(std::string s) {
         return dic.find(s) != dic.end();
     }
@@ -104,14 +114,14 @@ struct Infoset {
     T get(std::string s) {
         return infos[get_id(s)];
     }
-    T get(int uid) {
-        return infos[uid];
+    T get(int id) {
+        return infos[id];
     }
     T* access(std::string s) {
         return &infos[get_id(s)];
     }
-    T* access(int uid) {
-        return &infos[uid];
+    T* access(int id) {
+        return &infos[id];
     }
 };
 
@@ -135,6 +145,11 @@ struct Data {
     }
     Comment* add_comment(Comment &comment) {
         return comments.add(&comment);
+    }
+
+    void remove_post(Post &post) {
+        post.author->posts.erase(post.id);
+        posts.remove(post.id);
     }
 };
 

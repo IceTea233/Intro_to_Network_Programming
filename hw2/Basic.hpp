@@ -210,10 +210,19 @@ string Read(const vector<string> &args, Data &data) {
 string DeletePost(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: delete-post\n";
 
-    if (args.size() != 2)
+    if (args.size() != 2 || !isnum(args[1]))
         return "Usage: delete <post-S/N>\n";
+    if (uid == -1)
+        return "Please login first.\n";
+    if (!data.posts.exist(args[1]))
+        return "Post does not exist.\n";
 
-    return "DeletePost executed.\n";
+    Post post = data.posts.get(args[1]);
+    if (uid != post.author->id)
+        return "Not the post owner.\n";
+
+    data.remove_post(post);
+    return "Delete successfully.\n";
 }
 
 #endif
