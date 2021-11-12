@@ -1,7 +1,8 @@
-#ifndef _DATA_HPP_
-#define _DATA_HPP_
+#ifndef _BASIC_HPP_
+#define _BASIC_HPP_
+
 #include "Data.hpp"
-#endif
+#include "Misc.hpp"
 
 #include <iostream>
 #include <vector>
@@ -176,7 +177,7 @@ string ListPost(const vector<string> &args, Data &data) {
 string Read(const vector<string> &args, Data &data) {
     cout << "Receive request: read\n";
 
-    if (args.size() != 2)
+    if (args.size() != 2 || !isnum(args[1]))
         return "Usage: read <post-S/N>\n";
     if (!data.posts.exist(stoi(args[1])))
         return "Post does not exist\n";
@@ -205,3 +206,14 @@ string Read(const vector<string> &args, Data &data) {
 
     return output;
 }
+
+string DeletePost(const vector<string> &args, Data &data, int &uid) {
+    cout << "Receive request: delete-post\n";
+
+    if (args.size() != 2)
+        return "Usage: delete <post-S/N>\n";
+
+    return "DeletePost executed.\n";
+}
+
+#endif

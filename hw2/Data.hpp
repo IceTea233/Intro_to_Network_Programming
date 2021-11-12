@@ -1,3 +1,6 @@
+#ifndef _DATA_HPP_
+#define _DATA_HPP_
+
 #include <ctime>
 #include <string>
 #include <vector>
@@ -134,3 +137,5 @@ struct Data {
         return comments.add(&comment);
     }
 };
+
+#endif

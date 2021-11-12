@@ -1,7 +1,7 @@
-#ifndef _DATA_HPP_
-#define _DATA_HPP_
+#ifndef _MESSAGE_BOX_
+#define _MESSAGE_BOX_
+
 #include "Data.hpp"
-#endif
 
 #include <iostream>
 #include <vector>
@@ -71,3 +71,5 @@ string Receive(const vector<string> &args, Data &data, int &uid) {
 
     return msg + "\n";
 }
+
+#endif

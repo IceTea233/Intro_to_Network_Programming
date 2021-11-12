@@ -1,14 +1,9 @@
-#ifndef _BASIC_HPP_
-#define _BASIC_HPP_
+#ifndef _TOOLS_HPP_
+#define _TOOLS_HPP_
+
 #include "Basic.hpp"
-#endif
-
-#include "Message_Box.hpp"
-
-#ifndef _DATA_HPP_
-#define _DATA_HPP_
 #include "Data.hpp"
-#endif
+#include "Message_Box.hpp"
 
 #include <iostream>
 #include <vector>
@@ -179,3 +174,5 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
 
     return 0;
 }
+
+#endif
