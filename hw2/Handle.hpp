@@ -110,13 +110,13 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
 
     memset(buff, 0, buff_len);
     vector<string> args_arr = GetArg(input);
-    cout << "read args: ";
-    for (auto it : args_arr) {
-        cout << " {" << (it == "\n" ? "\'\\n\'" : it) << "}";
-        if (it == "\n")
-            cout << "\n";
-    }
-    cout << "\n";
+    // cout << "read args: ";
+    // for (auto it : args_arr) {
+    //     cout << " {" << (it == "\n" ? "\'\\n\'" : it) << "}";
+    //     if (it == "\n")
+    //         cout << "\n";
+    // }
+    // cout << "\n";
 
     int code = 0;
     vector<string> args;

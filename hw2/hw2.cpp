@@ -9,6 +9,7 @@
 
 #define MAXLINE 10000
 #define LISTENQ 16
+#define TEST true
 // #define PORT 8888
 
 using namespace std;
@@ -111,6 +112,9 @@ int main(int argn, char **argv) {
                     client[i] = -1;
                 } else {
                     ibuff[n] = '\0';
+                    if (TEST)
+                        write(sockfd, ibuff, strlen(ibuff));
+                    
                     code = Handle(sockfd, ibuff, obuff, sizeof(obuff));
                     if (code == 0) {
                         write(sockfd, obuff, strlen(obuff));
@@ -121,6 +125,7 @@ int main(int argn, char **argv) {
                         FD_CLR(sockfd, &allset);
                         printf("Closed socket (fd = %d)\n", sockfd);
                         client[i] = -1;
+                        return 0;
                     }
                 }
 
