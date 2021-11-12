@@ -162,7 +162,7 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
                 } else if (args[0] == "update-post") {
                     res = UpdatePost(args, data, client[sockfd]);
                 } else if (args[0] == "comment") {
-                    res = Comment(args, data, client[sockfd]);
+                    res = CreateComment(args, data, client[sockfd]);
                 }
                 else {
                     res = CmdHint();

@@ -28,7 +28,7 @@ string ListPost(const vector<string> &args, Data &data);
 string Read(const vector<string> &args, Data &data);
 string DeletePost(const vector<string> &args, Data &data, int &uid);
 string UpdatePost(const vector<string> &args, Data &data, int &uid);
-string Comment(const vector<string> &args, Data &data, int &uid); // TODO
+string CreateComment(const vector<string> &args, Data &data, int &uid); // TODO
 
 string Register(const vector<string> &args, Data &data) {
     cout << "Receive request: register\n";
@@ -206,7 +206,7 @@ string Read(const vector<string> &args, Data &data) {
     ss << content << "\n";
     ss << "--\n";
     for (auto comment : post.comments) {
-        ss << comment.second->from->name << ":" << comment.second->content << "\n";
+        ss << comment.second->author->name << ":" << comment.second->content << "\n";
     }
 
     string output = ss.str();
@@ -219,12 +219,13 @@ string DeletePost(const vector<string> &args, Data &data, int &uid) {
 
     if (args.size() != 2 || !isnum(args[1]))
         return "Usage: delete-post <post-S/N>\n";
+    int post_id = stoi(args[1]);
     if (uid == -1)
         return "Please login first.\n";
-    if (!data.posts.exist(args[1]))
+    if (!data.posts.exist(post_id))
         return "Post does not exist.\n";
 
-    Post post = data.posts.get(args[1]);
+    Post post = data.posts.get(post_id);
     if (uid != post.author->id)
         return "Not the post owner.\n";
 
@@ -242,14 +243,15 @@ string UpdatePost(const vector<string> &args, Data &data, int &uid) {
         if (args[i-1] == "--content")
             content = args[i];
     }
-    if (!(args.size() == 4 && !(title.empty() && content.empty())))
+    if (!(args.size() == 4 && isnum(args[1]) && !(title.empty() && content.empty())))
         return "Usage: update-post <post-S/N> --title/content <new>\n";
+    int post_id = stoi(args[1]);
     if (uid == -1)
         return "Please login first.\n";
-    if (!data.posts.exist(args[1]))
+    if (!data.posts.exist(post_id))
         return "Post does not exist.\n";
 
-    Post *post = data.posts.access(args[1]);
+    Post *post = data.posts.access(post_id);
     if (uid != post->author->id)
         return "Not the post owner.\n";
 
@@ -261,6 +263,25 @@ string UpdatePost(const vector<string> &args, Data &data, int &uid) {
     return "Update successfully.\n";
 }
 
-string comment()
+string CreateComment(const vector<string> &args, Data &data, int &uid) {
+    cout << "Receive request: comment\n";
+
+    if (args.size() != 3 || !isnum(args[1]))
+        return "Usage: comment <post-S/N> <comment>\n";
+    int post_id = stoi(args[1]);
+    if (uid == -1)
+        return "Please login first.\n";
+    if (!data.posts.exist(post_id))
+        return "Post does not exist.\n";
+
+    Comment comment("comment", args[2]);
+    Comment *commented = data.add_comment(comment);
+
+    Post *post = data.posts.access(post_id);
+    User *user = data.users.access(uid);
+    user->comment_to_post(post, commented);
+
+    return "Comment successfully.\n";
+}
 
 #endif

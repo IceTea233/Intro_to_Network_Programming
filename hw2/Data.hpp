@@ -9,10 +9,10 @@
 #include <iostream>
 
 struct Info;
-struct User;
 struct Post;
-struct Board;
 struct Comment;
+struct User;
+struct Board;
 
 struct Info {
     virtual ~Info() = default;
@@ -32,9 +32,18 @@ struct Post : Info {
     std::string content;
     std::map<int,Comment*> comments;
 
-    Post(): Info(), board(NULL), author(NULL), content("") {};
+    Post(): Info(), board(NULL), author(NULL) {};
     Post(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), board(NULL), author(NULL), content(arg3) {};
     Post(std::string arg1, std::string arg2): Info(arg1), board(NULL), author(NULL), content(arg2) {};
+};
+
+struct Comment : Info {
+    User *author;
+    std::string content;
+
+    Comment(): Info(), author(NULL) {};
+    Comment(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), content(arg3) {};
+    Comment(std::string arg1, std::string arg2): Info(arg1), content(arg2) {};
 };
 
 struct User : Info {
@@ -50,6 +59,10 @@ struct User : Info {
         post->author = this;
         posts[post->id] = post;
     }
+    void comment_to_post(Post *post, Comment *comment) {
+        comment->author = this;
+        post->comments[comment->id] = comment;
+    }
 };
 
 struct Board : Info {
@@ -64,15 +77,6 @@ struct Board : Info {
         post->board = this;
         posts[post->id] = post;
     }
-};
-
-struct Comment : Info {
-    User *from;
-    std::string content;
-
-    Comment(): Info(), from(NULL) {};
-    Comment(int arg1, std::string arg2, User *arg3): Info(arg1, arg2), from(arg3) {};
-    Comment(std::string arg1, User *arg2): Info(arg1), from(arg2) {};
 };
 
 template<typename T>
