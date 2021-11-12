@@ -159,6 +159,10 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
                     res = Read(args, data);
                 } else if (args[0] == "delete-post") {
                     res = DeletePost(args, data, client[sockfd]);
+                } else if (args[0] == "update-post") {
+                    res = UpdatePost(args, data, client[sockfd]);
+                } else if (args[0] == "comment") {
+                    res = Comment(args, data, client[sockfd]);
                 }
                 else {
                     res = CmdHint();

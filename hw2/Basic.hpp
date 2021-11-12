@@ -26,8 +26,8 @@ string CreatePost(const vector<string> &args, Data &data, int &uid);
 string ListBoard(const vector<string> &args, Data &data);
 string ListPost(const vector<string> &args, Data &data);
 string Read(const vector<string> &args, Data &data);
-string DeletePost(const vector<string> &args, Data &data, int &uid); // TODO
-string UpdatePost(const vector<string> &args, Data &data, int &uid); // TODO
+string DeletePost(const vector<string> &args, Data &data, int &uid);
+string UpdatePost(const vector<string> &args, Data &data, int &uid);
 string Comment(const vector<string> &args, Data &data, int &uid); // TODO
 
 string Register(const vector<string> &args, Data &data) {
@@ -126,7 +126,14 @@ string CreateBoard(const vector<string> &args, Data &data, int &uid) {
 string CreatePost(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: create-post\n";
 
-    if (!(args.size() == 6 && args[2] == "--title" && args[4] == "--content"))
+    string title, content;
+    for (int i=1; i<args.size(); i++) {
+        if (args[i-1] == "--title")
+            title = args[i];
+        if (args[i-1] == "--content")
+            content = args[i];
+    }
+    if (!(args.size() == 6 && !title.empty() && !content.empty()))
         return "Usage: create-post <board-name> --title <title> --content <content>\n";
     if (uid == -1)
         return "Please login first.\n";
@@ -211,7 +218,7 @@ string DeletePost(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: delete-post\n";
 
     if (args.size() != 2 || !isnum(args[1]))
-        return "Usage: delete <post-S/N>\n";
+        return "Usage: delete-post <post-S/N>\n";
     if (uid == -1)
         return "Please login first.\n";
     if (!data.posts.exist(args[1]))
@@ -224,5 +231,36 @@ string DeletePost(const vector<string> &args, Data &data, int &uid) {
     data.remove_post(post);
     return "Delete successfully.\n";
 }
+
+string UpdatePost(const vector<string> &args, Data &data, int &uid) {
+    cout << "Receive request: update-post\n";
+
+    string title, content;
+    for (int i=1; i<args.size(); i++) {
+        if (args[i-1] == "--title")
+            title = args[i];
+        if (args[i-1] == "--content")
+            content = args[i];
+    }
+    if (!(args.size() == 4 && !(title.empty() && content.empty())))
+        return "Usage: update-post <post-S/N> --title/content <new>\n";
+    if (uid == -1)
+        return "Please login first.\n";
+    if (!data.posts.exist(args[1]))
+        return "Post does not exist.\n";
+
+    Post *post = data.posts.access(args[1]);
+    if (uid != post->author->id)
+        return "Not the post owner.\n";
+
+    if (!title.empty())
+        post->name = title;
+    if (!content.empty())
+        post->content = content;
+
+    return "Update successfully.\n";
+}
+
+string comment()
 
 #endif
