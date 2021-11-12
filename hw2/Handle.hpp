@@ -36,6 +36,7 @@ vector<string> GetArg(char *input) {
     // 0: normal.
     // 1: quoted - Simply copy the raw content in two quotation, exclusive of the quotation symbol.
     // 2: string argument - Any non-graph character is regarded as a space character. Detection depends on --flag.
+    // 3: single line - read until '\n' is detected.
 
     for (int i=0; input[i] != '\0'; i++) {
         if (flag == 0) {
@@ -50,11 +51,14 @@ vector<string> GetArg(char *input) {
                 buff.push_back(input[i]);
             } else {
                 if (!buff.empty()) {
+                    if (ret.size() && ret.back() == "comment") // Detect comment and change to single line mode
+                        flag = 3;
                     ret.push_back(buff);
-                    if (buff.size() >= 2 && buff.substr(0, 2) == "--") {
+                    if (buff.size() >= 2 && buff.substr(0, 2) == "--") { // Detect --flag and change to flag argument mode
                         long_buff.clear();
                         flag = 2;
                     }
+
                     buff.clear();
                 }
             }
@@ -62,7 +66,7 @@ vector<string> GetArg(char *input) {
             if (input[i] == '\"') {
                 ret.push_back(buff);
                 buff.clear();
-                flag = false;
+                flag = 0;
             } else {
                 buff.push_back(input[i]);
             }
@@ -82,9 +86,13 @@ vector<string> GetArg(char *input) {
                 }
                 buff.clear();
             }
+        } else if (flag == 3) {
+            buff.push_back(input[i]);
         }
 
         if (!isprint(input[i])) {
+            // Non-printing character will force reading mode to go to normal mode
+            // and push contents in the buffer into argument array.
             push_in(ret, buff, long_buff);
             ret.push_back("\n");
             flag = 0;

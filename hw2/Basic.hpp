@@ -187,7 +187,7 @@ string Read(const vector<string> &args, Data &data) {
     if (args.size() != 2 || !isnum(args[1]))
         return "Usage: read <post-S/N>\n";
     if (!data.posts.exist(stoi(args[1])))
-        return "Post does not exist\n";
+        return "Post does not exist.\n";
 
     stringstream ss;
 
@@ -206,7 +206,7 @@ string Read(const vector<string> &args, Data &data) {
     ss << content << "\n";
     ss << "--\n";
     for (auto comment : post.comments) {
-        ss << comment.second->author->name << ":" << comment.second->content << "\n";
+        ss << comment.second->author->name << ": " << comment.second->content << "\n";
     }
 
     string output = ss.str();
