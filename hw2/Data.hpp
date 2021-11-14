@@ -153,6 +153,7 @@ struct Data {
 
     void remove_post(Post &post) {
         post.author->posts.erase(post.id);
+        post.board->posts.erase(post.id);
         posts.remove(post.id);
     }
 };
