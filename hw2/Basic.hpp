@@ -142,7 +142,7 @@ string CreatePost(const vector<string> &args, Data &data, int &uid) {
     if (!data.boards.exist(args[1]))
         return "Board does not exist.\n";
 
-    Post post(args[3], args[5]);
+    Post post(title, content);
     Post *posted = data.add_post(post);
     data.users.access(uid)->add_post(posted);
     data.boards.access(args[1])->add_post(posted);
