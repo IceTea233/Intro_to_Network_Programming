@@ -47,13 +47,14 @@ struct Comment : Info {
 };
 
 struct User : Info {
+    bool logged;
     std::string pass;
     std::map<std::string, std::list<std::string>> msgbox;
     std::map<int, Post*> posts;
 
-    User(): Info(), pass("") {};
-    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3) {};
-    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2) {};
+    User(): Info(), pass(""), logged(false) {};
+    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3), logged(false) {};
+    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2), logged(false) {};
 
     void add_post(Post *post) {
         post->author = this;

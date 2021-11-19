@@ -47,7 +47,7 @@ string Login(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: login\n";
     if (args.size() != 3)
         return "Usage: login <username> <password>\n";
-    if (uid != -1)
+    if (uid != -1 || data.users.get(args[1]).logged)
         return "Please logout first.\n";
     if (!data.users.exist(args[1]) || data.users.get(args[1]).pass != args[2]) {
         return "Login failed.\n";
@@ -55,6 +55,7 @@ string Login(const vector<string> &args, Data &data, int &uid) {
     // if (data.find(args[1]) == data.end() || data[args[1]].pass != args[2])
     //     return "Login failed.\n";
     User user = data.users.get(args[1]);
+    data.users.access(args[1])->logged = true;
     uid = user.id;
 
     return "Welcome, " + user.name + ".\n";
@@ -67,6 +68,7 @@ string Logout(const vector<string> &args, Data &data, int &uid) {
         return "Please login first.\n";
 
     string tmp = data.users.get(uid).name;
+    data.users.access(uid)->logged = false;
     uid = -1;
     return "Bye, " + tmp + ".\n";
 }
@@ -172,9 +174,9 @@ string ListPost(const vector<string> &args, Data &data) {
 
     string post_list;
     stringstream ss;
-    ss << "S/N\tTitle\tAuthor\tData\n";
+    ss << "S/N\tTitle\tAuthor\tDate\n";
     for (const auto post : data.boards.get(args[1]).posts) {
-        ss << post.first << "\t" << post.second->name << "\t" << post.second->author->name << "\t" << post.second->time.tm_mon << "/" << post.second->time.tm_mday << "\n";
+        ss << post.first << "\t" << post.second->name << "\t" << post.second->author->name << "\t" << post.second->time.tm_mon + 1 << "/" << post.second->time.tm_mday << "\n";
     }
     post_list = ss.str();
 
@@ -194,7 +196,7 @@ string Read(const vector<string> &args, Data &data) {
     Post post = data.posts.get(stoi(args[1]));
     ss << "Author: " << post.author->name << "\n";
     ss << "Title: " << post.name << "\n";
-    ss << "Date: " << post.time.tm_mon << "/" << post.time.tm_mday << "\n";
+    ss << "Date: " << post.time.tm_mon + 1 << "/" << post.time.tm_mday << "\n";
     ss << "--\n";
 
     string content;

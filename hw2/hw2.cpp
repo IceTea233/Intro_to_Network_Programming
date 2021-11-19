@@ -71,7 +71,16 @@ int main(int argn, char **argv) {
     char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
     int port;
 
-    sscanf(argv[1], "%d", &port);
+    if (argn > 3) {
+        printf("usage: ./hw2 [port number]\n");
+        return 0;
+    }
+
+    if (argn == 2) {
+        sscanf(argv[1], "%d", &port);
+    } else {
+        port = 7890;
+    }
 
     if (Init(&listenfd, &srvaddr, port) != 0) {
         perror("Server terminated.\n");
