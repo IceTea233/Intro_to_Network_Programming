@@ -81,6 +81,14 @@ struct Board : Info {
     }
 };
 
+struct Record : Info {
+    User *author;
+    std::string message;
+
+    Record(): Info(), author(NULL), message("") {};
+    Record(User *arg1, std::string arg2): Info("msg"), author(arg1), message(arg2) {};
+};
+
 template<typename T>
 struct Infoset {
     int sn = 0;
@@ -136,6 +144,7 @@ struct Data {
     Infoset<Board> boards;
     Infoset<Post> posts;
     Infoset<Comment> comments;
+    Infoset<Record> records;
 
     User* add_user(User &user) {
         return users.add(&user);
@@ -151,6 +160,9 @@ struct Data {
     }
     Comment* add_comment(Comment &comment) {
         return comments.add(&comment);
+    }
+    Record* add_record(Record &record) {
+        return records.add(&record);
     }
 
     void remove_post(Post &post) {

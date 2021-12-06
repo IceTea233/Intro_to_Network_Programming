@@ -28,7 +28,7 @@ string ListPost(const vector<string> &args, Data &data);
 string Read(const vector<string> &args, Data &data);
 string DeletePost(const vector<string> &args, Data &data, int &uid);
 string UpdatePost(const vector<string> &args, Data &data, int &uid);
-string CreateComment(const vector<string> &args, Data &data, int &uid); // TODO: ISSUE
+string CreateComment(const vector<string> &args, Data &data, int &uid);
 
 string Register(const vector<string> &args, Data &data) {
     cout << "Receive request: register\n";
