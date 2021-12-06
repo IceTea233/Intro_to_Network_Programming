@@ -52,9 +52,13 @@ string Login(const vector<string> &args, Data &data, int &uid) {
     if (!data.users.exist(args[1]) || data.users.get(args[1]).pass != args[2]) {
         return "Login failed.\n";
     }
-    // if (data.find(args[1]) == data.end() || data[args[1]].pass != args[2])
-    //     return "Login failed.\n";
     User user = data.users.get(args[1]);
+    if (data.users.get(args[1]).bad) {
+        return "We don\'t welcome " + user.name + "!\n";
+    }
+    if (user.pass != args[2]) {
+        return "Login failed.\n";
+    }
     data.users.access(args[1])->logged = true;
     uid = user.id;
 
