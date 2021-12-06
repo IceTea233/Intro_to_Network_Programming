@@ -8,6 +8,8 @@
 #include <map>
 #include <iostream>
 
+#define MAXPORT 65535
+
 struct Info;
 struct Post;
 struct Comment;
@@ -49,13 +51,14 @@ struct Comment : Info {
 struct User : Info {
     bool logged;
     bool bad;
+    int room;
     std::string pass;
     std::map<std::string, std::list<std::string>> msgbox;
     std::map<int, Post*> posts;
 
-    User(): Info(), pass(""), logged(false), bad(false) {};
-    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3), logged(false), bad(false) {};
-    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2), logged(false), bad(false) {};
+    User(): Info(), pass(""), logged(false), bad(false), room(-1) {};
+    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3), logged(false), bad(false), room(-1) {};
+    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2), logged(false), bad(false), room(-1) {};
 
     void add_post(Post *post) {
         post->author = this;
@@ -64,6 +67,9 @@ struct User : Info {
     void comment_to_post(Post *post, Comment *comment) {
         comment->author = this;
         post->comments[comment->id] = comment;
+    }
+    void set_room(int r) {
+        room = r;
     }
 };
 
@@ -91,9 +97,10 @@ struct Record : Info {
 
 template<typename T>
 struct Infoset {
-    int sn = 0;
-    std::map<int, T> infos;
-    std::map<std::string, int> dic;
+    int sn = 0; //series number
+    std::map<int, T> infos; // map id to data
+    std::map<std::string, int> dic; // map string to id
+
 
     T* add(Info *info) {
         if (T *object = dynamic_cast<T*> (info)) {
@@ -144,7 +151,7 @@ struct Data {
     Infoset<Board> boards;
     Infoset<Post> posts;
     Infoset<Comment> comments;
-    Infoset<Record> records;
+    Infoset<Record> chat_history[MAXPORT + 1];
 
     User* add_user(User &user) {
         return users.add(&user);
@@ -161,8 +168,8 @@ struct Data {
     Comment* add_comment(Comment &comment) {
         return comments.add(&comment);
     }
-    Record* add_record(Record &record) {
-        return records.add(&record);
+    Record* add_record(int port, Record &record) {
+        return chat_history[port].add(&record);
     }
 
     void remove_post(Post &post) {
