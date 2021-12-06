@@ -72,7 +72,7 @@ int main(int argn, char **argv) {
     int port;
 
     if (argn > 3) {
-        printf("usage: ./hw2 [port number]\n");
+        printf("usage: ./hw3 [port number]\n");
         return 0;
     }
 
