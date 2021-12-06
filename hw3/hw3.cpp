@@ -14,16 +14,23 @@
 
 using namespace std;
 
-int Init(int *listenfd, sockaddr_in *srvaddr, int port) {
+int Init(int *listenfd, int *udpfd, sockaddr_in *srvaddr, int port) {
     *listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    *udpfd = socket(AF_INET, SOCK_DGRAM, 0);
     srvaddr->sin_family = AF_INET;
     srvaddr->sin_addr.s_addr = htonl(INADDR_ANY);
     srvaddr->sin_port = htons(port);
 
     if (bind(*listenfd, (sockaddr *) srvaddr, sizeof(*srvaddr)) == 0)
-        printf("[+]bind\n");
+        printf("[+]bind TCP listen fd = %d\n", *listenfd);
     else
         return -1;
+
+    if (bind(*udpfd, (sockaddr *) srvaddr, sizeof(*srvaddr)) == 0)
+        printf("[+]bind UDP fd = %d\n", *udpfd);
+    else
+        return -1;
+
 
     if (listen(*listenfd, LISTENQ) == 0)
         printf("[+]listen\n");
@@ -63,11 +70,12 @@ int ConnectClient(int listenfd, int *maxfd, int *client, int *nclient, fd_set *a
 
 int main(int argn, char **argv) {
     int i,j, code;
-    int listenfd, maxfd, sockfd;
+    int listenfd, udpfd, maxfd, sockfd;
     int nready, nclient, client[FD_SETSIZE];
     ssize_t n;
     fd_set ready, allset;
     sockaddr_in srvaddr, cliaddr;
+    socklen_t clilen;
     char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
     int port;
 
@@ -82,17 +90,18 @@ int main(int argn, char **argv) {
         port = 7890;
     }
 
-    if (Init(&listenfd, &srvaddr, port) != 0) {
+    if (Init(&listenfd, &udpfd, &srvaddr, port) != 0) {
         perror("Server terminated.\n");
         return 0;
     }
-    maxfd = listenfd;
+    maxfd = max(listenfd, udpfd);
     nclient = 0;
     for (i = 0; i < FD_SETSIZE; i++) {
         client[i] = -1;
     }
     FD_ZERO(&allset);
     FD_SET(listenfd, &allset);
+    FD_SET(udpfd, &allset);
 
     for (;;) {
         ready = allset;
@@ -140,6 +149,15 @@ int main(int argn, char **argv) {
                 if (--nready <= 0)
                     break;
             }
+        }
+
+        if (FD_ISSET(udpfd, &ready)) {
+            clilen = sizeof(cliaddr);
+            n = recvfrom(udpfd, ibuff, MAXLINE, 0, (sockaddr *) &cliaddr, &clilen);
+            ibuff[n] = '\0';
+            printf("UDP packet received. From %s\n", inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)));
+            snprintf(obuff, 100000, "UDP echo: %s\n", ibuff);
+            sendto(udpfd, obuff, strlen(obuff), 0, (sockaddr *) &cliaddr, clilen);
         }
     }
 

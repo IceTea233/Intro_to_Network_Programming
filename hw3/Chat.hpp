@@ -8,7 +8,10 @@ using namespace std;
 
 // Chat Room operations
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid); // Usage: enter-chat-room <port> <version>
-string Chat(const vector<string> &args, Data &data); //Usage: chat <message>
+
+// This is implemented in Client application.
+// string Chat(const vector<string> &args, Data &data); //Usage: chat <message>
+
 
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid) {
     if (args.size() < 3) {
