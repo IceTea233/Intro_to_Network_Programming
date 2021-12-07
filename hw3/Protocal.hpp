@@ -20,8 +20,8 @@ struct message_pk {
     unsigned char data[2048];
 };
 
-void *memcat(unsigned char *destination, const void * source, size_t num) { // Only unsigned char supported!
-    memcpy(destination, &source, num);
+void *memcat(unsigned char *&destination, const void * source, size_t num) { // Only unsigned char supported!
+    memcpy(destination, source, num);
     destination = destination + num;
     return destination;
 }
@@ -29,18 +29,19 @@ void *memcat(unsigned char *destination, const void * source, size_t num) { // O
 int pack_message(message_pk *pack, message_t message) { // TODO: refresh up the implementation.
     uint16_t tmp;
     pack->data[0] = '\0';
+    pack->len = 0;
     unsigned char *ptr = pack->data;
     if (message.version == 1) {
         memcat(ptr, &(message.flag), sizeof(message.flag));
         memcat(ptr, &(message.version), sizeof(message.version));
 
         tmp = htons(message.name_len);
-        memcat(ptr, &(tmp), sizeof(tmp));
+        memcat(ptr, &tmp, sizeof(tmp));
         memcat(ptr, message.name, message.name_len);
 
         tmp = htons(message.mesg_len);
-        memcpy(ptr, &tmp, sizeof(message.mesg_len));
-        memcpy(ptr, &tmp, message.name_len);
+        memcat(ptr, &tmp, sizeof(tmp));
+        memcat(ptr, message.mesg, message.mesg_len);
         *ptr = '\0';
         pack->len = ptr - pack->data;
         return pack->len;
@@ -83,7 +84,6 @@ message_t *unpack_message(message_t *message, message_pk *pack) {
 
         return message;
     } else if (version == 2) {
-
         // TODO
     }
 

@@ -158,7 +158,6 @@ int main(int argn, char **argv) {
             clilen = sizeof(cliaddr);
             n = recvfrom(udpfd, ibuff, MAXLINE, 0, (sockaddr *) &cliaddr, &clilen);
             ibuff[n] = '\0';
-            printf("ibuff > [%s]\n", ibuff);
             printf("UDP packet received. From %s:%d. Length = %d\n",
                 inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
                 ntohs(cliaddr.sin_port),
