@@ -154,7 +154,6 @@ struct Data {
     Infoset<Comment> comments;
     Infoset<Record> chat_history[MAXPORT + 1];
     std::set<int> room_member[MAXPORT + 1];
-    std::map<sockaddr_in, User*> source;
 
     User* add_user(User &user) {
         return users.add(&user);
@@ -173,6 +172,14 @@ struct Data {
     }
     Record* add_record(int port, Record &record) {
         return chat_history[port].add(&record);
+    }
+    User* find_user(sockaddr_in addr) {
+        for (auto &info : users.infos) {
+            User *user = &(info.second);
+            if (user->chat_addr.sin_port == addr.sin_port && user->chat_addr.sin_addr.s_addr == addr.sin_addr.s_addr)
+                return user;
+        }
+        return nullptr;
     }
 
     void remove_post(Post &post) {

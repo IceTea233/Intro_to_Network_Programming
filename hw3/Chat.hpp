@@ -33,7 +33,6 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_
     User *user = data.users.access(uid);
     data.move_user_to_room(*user, port);
     user->chat_addr = cliaddr;
-    data.source[cliaddr] = user;
     string history;
     for (auto record : data.chat_history[port].infos) {
         history.append(record.second.message + "\n");
@@ -46,7 +45,7 @@ string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in clia
         return "Unsupported input format detected.\n";
     }
 
-    User *user = data.source[cliaddr];
+    User *user = data.find_user(cliaddr);
     int room = user->room;
     message_t mesg;
     mesg.flag = 1;
