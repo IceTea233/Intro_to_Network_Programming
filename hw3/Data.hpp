@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <set>
 #include <iostream>
 
 #define MAXPORT 65535
@@ -152,6 +153,7 @@ struct Data {
     Infoset<Post> posts;
     Infoset<Comment> comments;
     Infoset<Record> chat_history[MAXPORT + 1];
+    std::set<int> room_member[MAXPORT + 1];
 
     User* add_user(User &user) {
         return users.add(&user);
@@ -176,6 +178,12 @@ struct Data {
         post.author->posts.erase(post.id);
         post.board->posts.erase(post.id);
         posts.remove(post.id);
+    }
+
+    void move_user_to_room(User &user, int roomid) {
+        room_member[user.room].erase(user.id);
+        room_member[roomid].insert(user.id);
+        user.room = roomid;
     }
 };
 

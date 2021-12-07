@@ -28,8 +28,8 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid) {
     if (uid == -1) {
         return "Please login first.\n";
     }
-    // TODO: Lead client to the appointed chat room.
 
+    data.move_user_to_room(*(data.users.access(uid)), port);
     string history;
     for (auto record : data.chat_history[port].infos) {
         history.append(record.second.message + "\n");
