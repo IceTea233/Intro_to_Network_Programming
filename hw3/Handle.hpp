@@ -2,6 +2,7 @@
 #define _TOOLS_HPP_
 
 #include "Basic.hpp"
+#include "Chat.hpp"
 #include "Data.hpp"
 #include "Message_Box.hpp"
 
@@ -13,6 +14,8 @@
 #include <cstring>
 #include <cctype>
 #define MAXFD 16
+#define TCP 1
+#define UDP 2
 
 using namespace std;
 
@@ -112,7 +115,7 @@ string CmdHint() {
     return "";
 }
 
-int Handle(int sockfd, char *input, char *buff, int buff_len) {
+int Handle(int sockfd, int service, char *input, char *buff, int buff_len) {
     static Data data; // All information is saved in data.
     static vector<int> client(MAXFD, -1); // Indicate which account the interested client is currently using.
 
@@ -128,63 +131,77 @@ int Handle(int sockfd, char *input, char *buff, int buff_len) {
 
     int code = 0;
     vector<string> args;
-    for (auto it : args_arr) {
-        if (it == "\n") {
-            string res;
-            if (args.empty()) {
-                res = CmdHint();
-                strncat(buff, res.c_str(), buff_len);
-            } else {
-                string ret;
-                if (args[0] == "register") {
-                    res = Register(args, data);
-                } else if (args[0] == "login") {
-                    res = Login(args, data, client[sockfd]);
-                } else if (args[0] == "logout") {
-                    res = Logout(args, data, client[sockfd]);
-                } else if (args[0] == "whoami") {
-                    res = Whoami(args, data, client[sockfd]);
-                } else if (args[0] == "list-user") {
-                    res = ListUser(args, data);
-                } else if (args[0] == "exit") {
-                    res = Exit(args, data, client[sockfd]);
-                    code = 1;
-                } else if (args[0] == "send") {
-                    res = Send(args, data, client[sockfd]);
-                } else if (args[0] == "list-msg") {
-                    res = ListMsg(args, data, client[sockfd]);
-                } else if (args[0] == "receive") {
-                    res = Receive(args, data, client[sockfd]);
-                } else if (args[0] == "create-board") {
-                    res = CreateBoard(args, data, client[sockfd]);
-                } else if (args[0] == "create-post") {
-                    res = CreatePost(args, data, client[sockfd]);
-                } else if (args[0] == "list-board") {
-                    res = ListBoard(args, data);
-                } else if (args[0] == "list-post") {
-                    res = ListPost(args, data);
-                } else if (args[0] == "read") {
-                    res = Read(args, data);
-                } else if (args[0] == "delete-post") {
-                    res = DeletePost(args, data, client[sockfd]);
-                } else if (args[0] == "update-post") {
-                    res = UpdatePost(args, data, client[sockfd]);
-                } else if (args[0] == "comment") {
-                    res = CreateComment(args, data, client[sockfd]);
-                }
-                else {
+    if (service == TCP) {
+        for (auto it : args_arr) {
+            if (it == "\n") {
+                string res;
+                if (args.empty()) {
                     res = CmdHint();
+                    strncat(buff, res.c_str(), buff_len);
+                } else {
+                    if (args[0] == "register") {
+                        res = Register(args, data);
+                    } else if (args[0] == "login") {
+                        res = Login(args, data, client[sockfd]);
+                    } else if (args[0] == "logout") {
+                        res = Logout(args, data, client[sockfd]);
+                    } else if (args[0] == "whoami") {
+                        res = Whoami(args, data, client[sockfd]);
+                    } else if (args[0] == "list-user") {
+                        res = ListUser(args, data);
+                    } else if (args[0] == "exit") {
+                        res = Exit(args, data, client[sockfd]);
+                        code = 1;
+                    } else if (args[0] == "send") {
+                        res = Send(args, data, client[sockfd]);
+                    } else if (args[0] == "list-msg") {
+                        res = ListMsg(args, data, client[sockfd]);
+                    } else if (args[0] == "receive") {
+                        res = Receive(args, data, client[sockfd]);
+                    } else if (args[0] == "create-board") {
+                        res = CreateBoard(args, data, client[sockfd]);
+                    } else if (args[0] == "create-post") {
+                        res = CreatePost(args, data, client[sockfd]);
+                    } else if (args[0] == "list-board") {
+                        res = ListBoard(args, data);
+                    } else if (args[0] == "list-post") {
+                        res = ListPost(args, data);
+                    } else if (args[0] == "read") {
+                        res = Read(args, data);
+                    } else if (args[0] == "delete-post") {
+                        res = DeletePost(args, data, client[sockfd]);
+                    } else if (args[0] == "update-post") {
+                        res = UpdatePost(args, data, client[sockfd]);
+                    } else if (args[0] == "comment") {
+                        res = CreateComment(args, data, client[sockfd]);
+                    } else if (args[0] == "enter-chat-room") {
+                        res = EnterChatRoom(args, data, client[sockfd]);
+                    }
+                    else {
+                        res = CmdHint();
+                    }
+                    strncat(buff, res.c_str(), buff_len);
                 }
-                strncat(buff, res.c_str(), buff_len);
-            }
 
-            if (code == 1)
-                return code;
-            args.clear();
-        } else {
-            args.push_back(it);
+                if (code == 1)
+                    return code;
+                args.clear();
+            } else {
+                args.push_back(it);
+            }
+        }
+    } else if (service == UDP) {
+        for (auto it : args_arr) {
+            if (it != "\n")
+                args.push_back(it);
+        }
+
+        if (args[0] == "chat") {
+            string res = Chat(args, data, client[sockfd]);
+            cout << res << "\n";
         }
     }
+
 
     return 0;
 }

@@ -1,4 +1,5 @@
 #include "Handle.hpp"
+#include "Protocal.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,6 +77,8 @@ int main(int argn, char **argv) {
     fd_set ready, allset;
     sockaddr_in srvaddr, cliaddr;
     socklen_t clilen;
+    message_pk mesgpk;
+    message_t mesg;
     char ibuff[MAXLINE], obuff[MAXLINE], buff[MAXLINE];
     int port;
 
@@ -133,7 +136,7 @@ int main(int argn, char **argv) {
                     if (TEST)
                         write(sockfd, ibuff, strlen(ibuff));
 
-                    code = Handle(sockfd, ibuff, obuff, sizeof(obuff));
+                    code = Handle(sockfd, TCP, ibuff, obuff, sizeof(obuff));
                     write(sockfd, obuff, strlen(obuff));
                     if (code == 0) {
                         snprintf(obuff, sizeof(obuff), "%% ");
@@ -154,10 +157,15 @@ int main(int argn, char **argv) {
         if (FD_ISSET(udpfd, &ready)) {
             clilen = sizeof(cliaddr);
             n = recvfrom(udpfd, ibuff, MAXLINE, 0, (sockaddr *) &cliaddr, &clilen);
-            ibuff[n] = '\0';
-            printf("UDP packet received. From %s\n", inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)));
-            snprintf(obuff, 100000, "UDP echo: %s\n", ibuff);
-            sendto(udpfd, obuff, strlen(obuff), 0, (sockaddr *) &cliaddr, clilen);
+            printf("UDP packet received. From %s:%d. Length = %d\n",
+                inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff)),
+                ntohs(cliaddr.sin_port),
+                (int) n);
+            genpack(ibuff, n, &mesgpk);
+            unpack_message(&mesg, &mesgpk);
+            snprintf(buff, MAXLINE, "chat \"%s\" \"%s\"", (char*) mesg.name, (char*) mesg.mesg);
+            printf("Call [%s] to event handler\n", buff);
+            code = Handle(sockfd, UDP, buff, obuff, sizeof(obuff));
         }
     }
 

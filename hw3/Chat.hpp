@@ -9,13 +9,14 @@ using namespace std;
 // Chat Room operations
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid); // Usage: enter-chat-room <port> <version>
 
-// This is implemented in Client application.
-// string Chat(const vector<string> &args, Data &data); //Usage: chat <message>
-
+// This is implementation of "Chat" feature for server part.
+string Chat(const vector<string> &args, Data &data, int &uid); //Usage: chat <name> <mesg>
 
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid) {
+    cout << "Receive request: enter-chat-room\n";
+
     if (args.size() < 3) {
-        return "Usage: enter-chat-room <port>";
+        return "Usage: enter-chat-room <port> <version>\n";
     }
     int port, version;
     if (!isnum(args[1]) || (port = stoi(args[1])) < 1 || port > 65535) {
@@ -34,6 +35,13 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid) {
         history.append(record.second.message + "\n");
     }
     return string("Welcome to public chat room.\n") + "Port:" + args[1] + "\n" + "Version:" + args[2] + "\n";
+}
+
+string Chat(const vector<string> &args, Data &data, int &uid) {
+    if (args.size() != 3) {
+        return "Unsupported input format detected.\n";
+    }
+    return "name = " + args[1] + "\nmesg = " + args[2] + "\n";
 }
 
 #endif
