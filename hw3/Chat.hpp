@@ -33,6 +33,7 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_
     User *user = data.users.access(uid);
     data.move_user_to_room(*user, port);
     user->chat_addr = cliaddr;
+    user->chat_addr.sin_port = htons(port);
     string history;
     for (auto record : data.chat_history[port].infos) {
         history.append(record.second.message + "\n");
@@ -57,6 +58,7 @@ string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in clia
         user = data.users.access(recvid);
         mesg.version = user->chat_ver;
         message_pk pack;
+        printf("Ready to pack message.\n");
         pack_message(&pack, mesg);
         sockaddr_in cliaddr = user->chat_addr;
         sendto(sendfd, pack.data, pack.len, 0, (sockaddr *) &cliaddr, sizeof(cliaddr));

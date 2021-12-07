@@ -26,7 +26,7 @@ void *memcat(unsigned char *destination, const void * source, size_t num) { // O
     return destination;
 }
 
-int pack_message(message_pk *pack, message_t message) {
+int pack_message(message_pk *pack, message_t message) { // TODO: refresh up the implementation.
     uint16_t tmp;
     pack->data[0] = '\0';
     unsigned char *ptr = pack->data;
@@ -60,14 +60,14 @@ message_t *unpack_message(message_t *message, message_pk *pack) {
         return message;
     }
     uint8_t version = *(pack->data + sizeof(flag));
-    printf("Flag = %d, Ver = %d\n", (int) flag, (int) version);
-    printf("pack length = %d\n", pack->len);
+    // printf("Flag = %d, Ver = %d\n", (int) flag, (int) version);
+    // printf("pack length = %d\n", pack->len);
     if (version == 1) {
         message->flag = flag;
         message->version = version;
         unsigned char *ptr = pack->data + sizeof(flag) + sizeof(version);
         message->name_len = ntohs(*(uint16_t*) ptr);
-        printf("name_len = %d\n", (int) message->name_len);
+        // printf("name_len = %d\n", (int) message->name_len);
         ptr = ptr + sizeof(uint16_t);
         memcpy(message->name, ptr, message->name_len);
         message->name[message->name_len] = '\0';
@@ -75,10 +75,10 @@ message_t *unpack_message(message_t *message, message_pk *pack) {
         printf("name = %s\n", (char*) message->name);
 
         message->mesg_len = ntohs(*(uint16_t*) ptr);
-        printf("mesg_len = %d\n", (int) message->mesg_len);
+        // printf("mesg_len = %d\n", (int) message->mesg_len);
         ptr = ptr + sizeof(uint16_t);
         memcpy(message->mesg, ptr, message->mesg_len);
-        message->name[message->name_len] = '\0';
+        message->mesg[message->mesg_len] = '\0';
         printf("mesg = %s\n", (char*) message->mesg);
 
         return message;
@@ -93,6 +93,7 @@ message_t *unpack_message(message_t *message, message_pk *pack) {
 message_pk *genpack(char *s, int len, message_pk *pack) {
     pack->len = len;
     memcpy(pack->data, s, len);
+    pack->data[len] = '\0';
     return pack;
 }
 

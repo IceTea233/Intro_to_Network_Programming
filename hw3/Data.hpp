@@ -173,19 +173,27 @@ struct Data {
     Record* add_record(int port, Record &record) {
         return chat_history[port].add(&record);
     }
-    User* find_user(sockaddr_in addr) {
-        for (auto &info : users.infos) {
-            User *user = &(info.second);
-            if (user->chat_addr.sin_port == addr.sin_port && user->chat_addr.sin_addr.s_addr == addr.sin_addr.s_addr)
-                return user;
-        }
-        return nullptr;
-    }
 
     void remove_post(Post &post) {
         post.author->posts.erase(post.id);
         post.board->posts.erase(post.id);
         posts.remove(post.id);
+    }
+
+    User* find_user(sockaddr_in addr) {
+        char buff[1000];
+        printf("searching %s:%d among users...\n",
+            inet_ntop(AF_INET, &addr.sin_addr.s_addr, buff, sizeof(buff)),
+            (int) ntohs(addr.sin_port));
+        for (auto &info : users.infos) {
+            User *user = &(info.second);
+            printf(">> %s:%d <<\n",
+                inet_ntop(AF_INET, &user->chat_addr.sin_addr.s_addr, buff, sizeof(buff)),
+                (int) ntohs(user->chat_addr.sin_port));
+            if (user->chat_addr.sin_port == addr.sin_port && user->chat_addr.sin_addr.s_addr == addr.sin_addr.s_addr)
+                return user;
+        }
+        return nullptr;
     }
 
     void move_user_to_room(User &user, int roomid) {
