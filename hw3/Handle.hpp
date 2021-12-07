@@ -115,7 +115,7 @@ string CmdHint() {
     return "";
 }
 
-int Handle(int sockfd, int service, char *input, char *buff, int buff_len) {
+int Handle(int sockfd, int service, char *input, char *buff, int buff_len, sockaddr_in cliaddr) {
     static Data data; // All information is saved in data.
     static vector<int> client(MAXFD, -1); // Indicate which account the interested client is currently using.
 
@@ -175,7 +175,7 @@ int Handle(int sockfd, int service, char *input, char *buff, int buff_len) {
                     } else if (args[0] == "comment") {
                         res = CreateComment(args, data, client[sockfd]);
                     } else if (args[0] == "enter-chat-room") {
-                        res = EnterChatRoom(args, data, client[sockfd]);
+                        res = EnterChatRoom(args, data, client[sockfd], cliaddr);
                     }
                     else {
                         res = CmdHint();
@@ -197,7 +197,7 @@ int Handle(int sockfd, int service, char *input, char *buff, int buff_len) {
         }
 
         if (args[0] == "chat") {
-            string res = Chat(args, data, client[sockfd]);
+            string res = Chat(args, data, sockfd, cliaddr);
             cout << res << "\n";
         }
     }

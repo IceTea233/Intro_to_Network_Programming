@@ -8,6 +8,7 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <arpa/inet.h>
 
 #define MAXPORT 65535
 
@@ -51,6 +52,8 @@ struct Comment : Info {
 
 struct User : Info {
     bool logged;
+    sockaddr_in chat_addr;
+    int chat_ver;
     bool bad;
     int room;
     std::string pass;
@@ -68,9 +71,6 @@ struct User : Info {
     void comment_to_post(Post *post, Comment *comment) {
         comment->author = this;
         post->comments[comment->id] = comment;
-    }
-    void set_room(int r) {
-        room = r;
     }
 };
 
@@ -154,6 +154,7 @@ struct Data {
     Infoset<Comment> comments;
     Infoset<Record> chat_history[MAXPORT + 1];
     std::set<int> room_member[MAXPORT + 1];
+    std::map<sockaddr_in, User*> source;
 
     User* add_user(User &user) {
         return users.add(&user);
