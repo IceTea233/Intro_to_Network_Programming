@@ -46,6 +46,7 @@ string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in clia
     if (args.size() != 3) {
         return "Unsupported input format detected.\n";
     }
+    return "Chat: name = " + args[1] + "; mesg = " + args[2] + "\n";
 
     User *user = data.find_user(cliaddr);
     int room = user->room;
@@ -72,7 +73,6 @@ string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in clia
         sockaddr_in cliaddr = user->chat_addr;
         sendto(sendfd, pack.data, pack.len, 0, (sockaddr *) &cliaddr, sizeof(cliaddr));
     }
-    return "Chat: name = " + args[1] + "; mesg = " + args[2] + "\n";
 }
 
 #endif

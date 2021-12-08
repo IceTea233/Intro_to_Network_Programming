@@ -104,6 +104,7 @@ string Exit(const vector<string> &args, Data &data, int &uid) {
 
     if (uid != -1) {
         string tmp = data.users.get(uid).name;
+        data.users.access(uid)->logged = false;
         uid = -1;
         return "Bye, " + tmp + ".\n";
     }
