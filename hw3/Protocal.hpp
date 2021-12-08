@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 struct message_t {
     uint8_t flag;
@@ -60,14 +61,18 @@ int base64_encode(unsigned char *buff, unsigned char *arr, int len) {
     uint8_t code = 0;
     int code_bit = 0;
     unsigned char *ptr = buff;
+    // printf("base64 encoding...\n");
+    // printf("%s\n", arr);
     for (int i=0; i < len; i++) {
-        for (int j = 0; j < 8; i++) {
+        for (int j = 0; j < 8; j++) {
             code <<= 1;
-            code |= ((arr[i] >>  (7 - i)) & 1);
+            code |= ((arr[i] >> (7 - j)) & 1);
+            printf("%d", (int) ((code >> (7 - j)) & 1));
             code_bit ++;
 
             if (code_bit == 6) {
                 unsigned char c = base64_code(code);
+                // printf(" >>> \'%c\'\n", (char) c);
                 memcat(ptr, &c, sizeof(c));
                 code = 0;
                 code_bit = 0;
@@ -104,7 +109,7 @@ int base64_decode(unsigned char *buff, unsigned char *&arr) {
         for (int j=0; j < 6; j++) {
             code <<= 1;
             code |= ((b64 >> (5 - j)) & 1);
-            printf("%d", (int) ((b64 >> (5 - j)) & 1));
+            // printf("%d", (int) ((b64 >> (5 - j)) & 1));
             code_bit ++;
 
             if (code_bit == 8) {
@@ -115,6 +120,7 @@ int base64_decode(unsigned char *buff, unsigned char *&arr) {
             }
         }
     }
+    *ptr = '\0';
     arr++;
 
     return ptr - buff;
@@ -141,9 +147,9 @@ int pack_message(message_pk *pack, message_t message) {
         pack->len = ptr - pack->data;
         return pack->len;
     } else if (message.version == 2) {
-        // TODO
         memcat(ptr, &(message.flag), sizeof(message.flag));
         memcat(ptr, &(message.version), sizeof(message.version));
+
         int len = base64_encode(buff, message.name, message.name_len);
         memcat(ptr, buff, len);
         *ptr++ = '\n';
@@ -160,7 +166,7 @@ int pack_message(message_pk *pack, message_t message) {
 }
 
 message_t *unpack_message(message_t *message, message_pk *pack) {
-    printf("Unpacking message...\n");
+    // printf("Unpacking message...\n");
     uint8_t flag = *(pack->data);
     if (flag != 1) {
         printf("Flag is not in correct format.\n");
