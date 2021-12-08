@@ -10,7 +10,7 @@ using namespace std;
 // Chat Room operations
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid); // Usage: enter-chat-room <port> <version>
 
-// This is implementation of "Chat" feature for server part.
+// This is implementation of "Chat" function for server part.
 string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in cliaddr);
 
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_in cliaddr) {
