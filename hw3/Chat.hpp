@@ -10,10 +10,11 @@ using namespace std;
 // Chat Room operations
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid); // Usage: enter-chat-room <port> <version>
 
-// This is implementation of "Chat" function for server part.
+// This is implementation of "Chat" function for server part. Internal calling only.
 string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in cliaddr);
 
 string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_in cliaddr) {
+    // TODO: Issue: Different user on same address may cause duplicate message received.
     cout << "Receive request: enter-chat-room\n";
 
     if (args.size() < 3) {
@@ -31,32 +32,34 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_
     }
 
     User *user = data.users.access(uid);
-    data.move_user_to_room(*user, port);
+    data.move_user_to_room(*user, 0); // Always send the user to the public room aka room #0.
     user->chat_addr = cliaddr;
     user->chat_addr.sin_port = htons(port);
     user->chat_ver = version;
     string history;
-    for (auto record : data.chat_history[port].infos) {
-        history.append(record.second.message + "\n");
+    for (auto record : data.chat_history[0].infos) {
+        history.append(record.second.author->name + ":" + record.second.message + "\n");
     }
-    return string("Welcome to public chat room.\n") + "Port:" + to_string(port) + "\n" + "Version:" + to_string(version) + "\n";
+    return string("Welcome to public chat room.\n") + "Port:" + to_string(port) + "\n" + "Version:" + to_string(version) + "\n" + history;
 }
 
+// This is implementation of "Chat" function for server part. Internal calling only.
 string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in cliaddr) {
     if (args.size() != 3) {
         return "Unsupported input format detected.\n";
     }
 
-    User *user = data.find_user(cliaddr);
+    User *user = data.users.access(args[1]);
+    Record record(user, args[2]);
+    data.add_record(0, record);
+
     int room = user->room;
     message_t mesg;
     mesg.flag = 1;
     mesg.name_len = args[1].size();
     mesg.mesg_len = args[2].size();
-    memcpy(mesg.name, args[1].c_str(), mesg.name_len);
-    mesg.name[mesg.name_len] = '\0';
-    memcpy(mesg.mesg, args[2].c_str(), mesg.mesg_len);
-    mesg.mesg[mesg.mesg_len] = '\0';
+    strcpy((char*) mesg.name, args[1].c_str());
+    strcpy((char*) mesg.mesg, args[2].c_str());
     for (auto recvid : data.room_member[room]) {
         user = data.users.access(recvid);
         mesg.version = user->chat_ver;

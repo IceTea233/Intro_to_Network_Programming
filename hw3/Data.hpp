@@ -185,15 +185,16 @@ struct Data {
         printf("searching %s:%d among users...\n",
             inet_ntop(AF_INET, &addr.sin_addr.s_addr, buff, sizeof(buff)),
             (int) ntohs(addr.sin_port));
+        User* ret = nullptr;
         for (auto &info : users.infos) {
             User *user = &(info.second);
             printf(">> %s:%d <<\n",
                 inet_ntop(AF_INET, &user->chat_addr.sin_addr.s_addr, buff, sizeof(buff)),
                 (int) ntohs(user->chat_addr.sin_port));
             if (user->chat_addr.sin_port == addr.sin_port && user->chat_addr.sin_addr.s_addr == addr.sin_addr.s_addr)
-                return user;
+                ret = user;
         }
-        return nullptr;
+        return ret;
     }
 
     void move_user_to_room(User &user, int roomid) {

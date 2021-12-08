@@ -67,7 +67,7 @@ int base64_encode(unsigned char *buff, unsigned char *arr, int len) {
         for (int j = 0; j < 8; j++) {
             code <<= 1;
             code |= ((arr[i] >> (7 - j)) & 1);
-            printf("%d", (int) ((code >> (7 - j)) & 1));
+            // printf("%d", (int) ((code >> (7 - j)) & 1));
             code_bit ++;
 
             if (code_bit == 6) {
@@ -185,14 +185,14 @@ message_t *unpack_message(message_t *message, message_pk *pack) {
         memcpy(message->name, ptr, message->name_len);
         message->name[message->name_len] = '\0';
         ptr = ptr + sizeof(unsigned char) * message->name_len;
-        printf("name = %s\n", (char*) message->name);
+        // printf("name = %s\n", (char*) message->name);
 
         message->mesg_len = ntohs(*(uint16_t*) ptr);
         // printf("mesg_len = %d\n", (int) message->mesg_len);
         ptr = ptr + sizeof(uint16_t);
         memcpy(message->mesg, ptr, message->mesg_len);
         message->mesg[message->mesg_len] = '\0';
-        printf("mesg = %s\n", (char*) message->mesg);
+        // printf("mesg = %s\n", (char*) message->mesg);
 
         return message;
     } else if (version == 2) {
