@@ -51,18 +51,18 @@ struct Comment : Info {
 };
 
 struct User : Info {
-    bool logged;
+    int tcp_sock;
     sockaddr_in chat_addr;
     int chat_ver;
-    bool bad;
+    int violate;
     int room;
     std::string pass;
     std::map<std::string, std::list<std::string>> msgbox;
     std::map<int, Post*> posts;
 
-    User(): Info(), pass(""), logged(false), bad(false), room(-1) {};
-    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3), logged(false), bad(false), room(-1) {};
-    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2), logged(false), bad(false), room(-1) {};
+    User(): Info(), pass(""), tcp_sock(-1), violate(0), room(-1) {};
+    User(int arg1, std::string arg2, std::string arg3): Info(arg1, arg2), pass(arg3), tcp_sock(-1), violate(0), room(-1) {};
+    User(std::string arg1, std::string arg2): Info(arg1), pass(arg2), tcp_sock(-1), violate(0), room(-1) {};
 
     void add_post(Post *post) {
         post->author = this;
@@ -199,7 +199,8 @@ struct Data {
 
     void move_user_to_room(User &user, int roomid) {
         room_member[user.room].erase(user.id);
-        room_member[roomid].insert(user.id);
+        if (roomid >= 0)
+            room_member[roomid].insert(user.id);
         user.room = roomid;
     }
 };

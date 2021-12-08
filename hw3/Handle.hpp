@@ -143,6 +143,8 @@ int Handle(int sockfd, int service, char *input, char *buff, int buff_len, socka
                         res = Register(args, data);
                     } else if (args[0] == "login") {
                         res = Login(args, data, client[sockfd]);
+                        if (client[sockfd] != -1)
+                            data.users.access(client[sockfd])->tcp_sock = sockfd;
                     } else if (args[0] == "logout") {
                         res = Logout(args, data, client[sockfd]);
                     } else if (args[0] == "whoami") {
@@ -198,7 +200,18 @@ int Handle(int sockfd, int service, char *input, char *buff, int buff_len, socka
 
         if (args[0] == "chat") {
             string res = Chat(args, data, sockfd, cliaddr);
-            cout << res << "\n";
+            if (data.users.exist(args[1])) {
+                // cout << "check user...\n";
+                User *user = data.users.access(args[1]);
+                if (user->tcp_sock != -1 && user->violate >= 3) {
+                    cout << "Kick user out:" << user->name << "\n";
+                    client[user->tcp_sock] = -1;
+                    res = "Bye, " + user->name + ".\n";
+                    strncat(buff, res.c_str(), buff_len);
+                    write(user->tcp_sock, buff, strlen(buff));
+                    user->tcp_sock = -1;
+                }
+            }
         }
     }
 

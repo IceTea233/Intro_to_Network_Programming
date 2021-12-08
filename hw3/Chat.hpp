@@ -4,6 +4,7 @@
 #include "Protocal.hpp"
 #include "Data.hpp"
 #include "Misc.hpp"
+#include "Basic.hpp"
 
 using namespace std;
 
@@ -38,7 +39,10 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_
     user->chat_ver = version;
     string history;
     for (auto record : data.chat_history[0].infos) {
-        history.append(record.second.author->name + ":" + record.second.message + "\n");
+        string name = record.second.author->name;
+        string message = record.second.message;
+        filter(message);
+        history.append(name + ":" + message + "\n");
     }
     return string("Welcome to public chat room.\n") + "Port:" + to_string(port) + "\n" + "Version:" + to_string(version) + "\n" + history;
 }
@@ -48,18 +52,26 @@ string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in clia
     if (args.size() != 3) {
         return "Unsupported input format detected.\n";
     }
+    string name = args[1];
+    string message = args[2];
 
-    User *user = data.users.access(args[1]);
-    Record record(user, args[2]);
+    User *user = data.users.access(name);
+    Record record(user, message);
     data.add_record(0, record);
 
     int room = user->room;
     message_t mesg;
     mesg.flag = 1;
-    mesg.name_len = args[1].size();
-    mesg.mesg_len = args[2].size();
-    strcpy((char*) mesg.name, args[1].c_str());
-    strcpy((char*) mesg.mesg, args[2].c_str());
+
+    if (filter(message))
+        user->violate ++;
+    if (user->violate >= 3) {
+        data.move_user_to_room(*user, -1);
+    }
+    mesg.name_len = name.size();
+    mesg.mesg_len = message.size();
+    strcpy((char*) mesg.name, name.c_str());
+    strcpy((char*) mesg.mesg, message.c_str());
     for (auto recvid : data.room_member[room]) {
         user = data.users.access(recvid);
         mesg.version = user->chat_ver;
@@ -76,7 +88,7 @@ string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in clia
         sendto(sendfd, pack.data, pack.len, 0, (sockaddr *) &cliaddr, sizeof(cliaddr));
     }
 
-    return "Chat: name = " + args[1] + "; mesg = " + args[2] + "\n";
+    return "Chat: name = " + name + "; mesg = " + message + "\n";
 }
 
 #endif

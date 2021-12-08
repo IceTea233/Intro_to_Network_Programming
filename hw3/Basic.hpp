@@ -47,19 +47,18 @@ string Login(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: login\n";
     if (args.size() != 3)
         return "Usage: login <username> <password>\n";
-    if (uid != -1 || data.users.exist(args[1]) && data.users.get(args[1]).logged)
+    if (uid != -1 || data.users.exist(args[1]) && data.users.get(args[1]).tcp_sock != -1)
         return "Please logout first.\n";
     if (!data.users.exist(args[1]) || data.users.get(args[1]).pass != args[2]) {
         return "Login failed.\n";
     }
     User user = data.users.get(args[1]);
-    if (data.users.get(args[1]).bad) {
+    if (data.users.get(args[1]).violate >= 3) {
         return "We don\'t welcome " + user.name + "!\n";
     }
     if (user.pass != args[2]) {
         return "Login failed.\n";
     }
-    data.users.access(args[1])->logged = true;
     uid = user.id;
 
     return "Welcome, " + user.name + ".\n";
@@ -72,7 +71,7 @@ string Logout(const vector<string> &args, Data &data, int &uid) {
         return "Please login first.\n";
 
     string tmp = data.users.get(uid).name;
-    data.users.access(uid)->logged = false;
+    data.users.access(uid)->tcp_sock = -1;
     uid = -1;
     return "Bye, " + tmp + ".\n";
 }
@@ -104,7 +103,7 @@ string Exit(const vector<string> &args, Data &data, int &uid) {
 
     if (uid != -1) {
         string tmp = data.users.get(uid).name;
-        data.users.access(uid)->logged = false;
+        data.users.access(uid)->tcp_sock = -1;
         uid = -1;
         return "Bye, " + tmp + ".\n";
     }

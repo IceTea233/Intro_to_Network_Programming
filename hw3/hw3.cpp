@@ -165,7 +165,7 @@ int main(int argn, char **argv) {
             genpack(ibuff, n, &mesgpk);
             unpack_message(&mesg, &mesgpk);
             snprintf(buff, MAXLINE, "chat \"%s\" \"%s\"", (char*) mesg.name, (char*) mesg.mesg);
-            printf("Call [%s] to event handler\n", buff);
+            // printf("Call [%s] to event handler\n", buff);
             code = Handle(udpfd, UDP, buff, obuff, sizeof(obuff), cliaddr);
         }
     }
