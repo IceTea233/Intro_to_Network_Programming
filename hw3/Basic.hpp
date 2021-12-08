@@ -67,6 +67,9 @@ string Login(const vector<string> &args, Data &data, int &uid) {
 string Logout(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: logout\n";
 
+    if (args.size() != 1)
+        return "Usage: logout\n";
+
     if (uid == -1)
         return "Please login first.\n";
 
@@ -100,6 +103,10 @@ string ListUser(const vector<string> &args, Data &data) {
 
 string Exit(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: exit\n";
+
+    if (args.size() != 1) {
+        return "Usage: exit\n";
+    }
 
     if (uid != -1) {
         string tmp = data.users.get(uid).name;

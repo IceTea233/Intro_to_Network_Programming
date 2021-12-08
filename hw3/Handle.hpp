@@ -153,7 +153,8 @@ int Handle(int sockfd, int service, char *input, char *buff, int buff_len, socka
                         res = ListUser(args, data);
                     } else if (args[0] == "exit") {
                         res = Exit(args, data, client[sockfd]);
-                        code = 1;
+                        if (res != "Usage: exit\n")
+                            code = 1;
                     } else if (args[0] == "send") {
                         res = Send(args, data, client[sockfd]);
                     } else if (args[0] == "list-msg") {

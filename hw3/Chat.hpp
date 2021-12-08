@@ -18,15 +18,15 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_
     // TODO: Issue: Different user on same address may cause duplicate message received.
     cout << "Receive request: enter-chat-room\n";
 
-    if (args.size() < 3) {
+    if (args.size() != 3) {
         return "Usage: enter-chat-room <port> <version>\n";
     }
     int port, version;
     if (!isnum(args[1]) || (port = stoi(args[1])) < 1 || port > 65535) {
-        return "Port " + args[1] + "is not valid.\n";
+        return "Port " + args[1] + " is not valid.\n";
     }
     if (!isnum(args[2]) || (version = stoi(args[2])) < 1 || version > 2) {
-        return "Version " + args[2] + "is not supported.\n";
+        return "Version " + args[2] + " is not supported.\n";
     }
     if (uid == -1) {
         return "Please login first.\n";
