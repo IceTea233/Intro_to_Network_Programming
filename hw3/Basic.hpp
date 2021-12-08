@@ -47,7 +47,7 @@ string Login(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: login\n";
     if (args.size() != 3)
         return "Usage: login <username> <password>\n";
-    if (uid != -1 || data.users.get(args[1]).logged)
+    if (uid != -1 || data.users.exist(args[1]) && data.users.get(args[1]).logged)
         return "Please logout first.\n";
     if (!data.users.exist(args[1]) || data.users.get(args[1]).pass != args[2]) {
         return "Login failed.\n";
