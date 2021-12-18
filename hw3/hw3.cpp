@@ -22,6 +22,12 @@ int Init(int *listenfd, int *udpfd, sockaddr_in *srvaddr, int port) {
     srvaddr->sin_addr.s_addr = htonl(INADDR_ANY);
     srvaddr->sin_port = htons(port);
 
+    int flag = 1;
+    if (setsockopt(*listenfd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int)) != -1)
+        printf("[+] SO_REUSEADDR\n");
+    else
+        printf("ERR: SO_REUSEADDR fail\n");
+
     if (bind(*listenfd, (sockaddr *) srvaddr, sizeof(*srvaddr)) == 0)
         printf("[+]bind TCP listen fd = %d\n", *listenfd);
     else
@@ -70,7 +76,7 @@ int ConnectClient(int listenfd, int *maxfd, int *client, int *nclient, fd_set *a
 }
 
 int main(int argn, char **argv) {
-    int i,j, code;
+    int i , code;
     int listenfd, udpfd, maxfd, sockfd;
     int nready, nclient, client[FD_SETSIZE];
     ssize_t n;
@@ -136,7 +142,7 @@ int main(int argn, char **argv) {
                     if (TEST)
                         write(sockfd, ibuff, strlen(ibuff));
 
-                    code = Handle(sockfd, TCP, ibuff, obuff, sizeof(obuff), cliaddr);
+                    code = Handle(sockfd, TCP, ibuff, NULL, obuff, sizeof(obuff), cliaddr);
                     write(sockfd, obuff, strlen(obuff));
                     if (code == 0) {
                         snprintf(obuff, sizeof(obuff), "%% ");
@@ -164,9 +170,9 @@ int main(int argn, char **argv) {
                 (int) n);
             genpack(ibuff, n, &mesgpk);
             unpack_message(&mesg, &mesgpk);
-            snprintf(buff, MAXLINE, "chat \"%s\" \"%s\"", (char*) mesg.name, (char*) mesg.mesg);
-            // printf("Call [%s] to event handler\n", buff);
-            code = Handle(udpfd, UDP, buff, obuff, sizeof(obuff), cliaddr);
+            snprintf(buff, MAXLINE, "chat\n");
+            printf("Call [%s] to event handler\n", buff);
+            code = Handle(udpfd, UDP, buff, &mesg, obuff, sizeof(obuff), cliaddr);
         }
     }
 

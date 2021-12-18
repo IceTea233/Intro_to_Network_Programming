@@ -47,7 +47,7 @@ string Login(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: login\n";
     if (args.size() != 3)
         return "Usage: login <username> <password>\n";
-    if (uid != -1 || data.users.exist(args[1]) && data.users.get(args[1]).tcp_sock != -1)
+    if (uid != -1 || (data.users.exist(args[1]) && data.users.get(args[1]).tcp_sock != -1))
         return "Please logout first.\n";
     if (!data.users.exist(args[1]) || data.users.get(args[1]).pass != args[2]) {
         return "Login failed.\n";
@@ -140,7 +140,7 @@ string CreatePost(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: create-post\n";
 
     string title, content;
-    for (int i=1; i<args.size(); i++) {
+    for (int i=1; i< (int) args.size(); i++) {
         if (args[i-1] == "--title")
             title = args[i];
         if (args[i-1] == "--content")
@@ -250,7 +250,7 @@ string UpdatePost(const vector<string> &args, Data &data, int &uid) {
     cout << "Receive request: update-post\n";
 
     string title, content;
-    for (int i=1; i<args.size(); i++) {
+    for (int i=1; i<(int)args.size(); i++) {
         if (args[i-1] == "--title")
             title = args[i];
         if (args[i-1] == "--content")

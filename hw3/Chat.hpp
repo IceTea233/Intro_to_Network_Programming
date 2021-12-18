@@ -48,47 +48,48 @@ string EnterChatRoom(const vector<string> &args, Data &data, int &uid, sockaddr_
 }
 
 // This is implementation of "Chat" function for server part. Internal calling only.
-string Chat(const vector<string> &args, Data &data, int sendfd, sockaddr_in cliaddr) {
-    if (args.size() != 3) {
-        return "Unsupported input format detected.\n";
-    }
-    string name = args[1];
-    string message = args[2];
+string Chat(message_t mesg, Data &data, int sendfd, sockaddr_in cliaddr) {
+    // if (args.size() != 3) {
+    //     return "Unsupported input format detected.\n";
+    // }
+    string name = string((char *) mesg.name);
+    string message = string((char *) mesg.mesg);
 
     User *user = data.users.access(name);
     Record record(user, message);
     data.add_record(0, record);
 
     int room = user->room;
-    message_t mesg;
-    mesg.flag = 1;
 
     if (filter(message))
         user->violate ++;
     if (user->violate >= 3) {
         data.move_user_to_room(*user, -1);
     }
+
     mesg.name_len = name.size();
     mesg.mesg_len = message.size();
     strcpy((char*) mesg.name, name.c_str());
     strcpy((char*) mesg.mesg, message.c_str());
     for (auto recvid : data.room_member[room]) {
+        printf("handle user %d\n", recvid);
         user = data.users.access(recvid);
         mesg.version = user->chat_ver;
         message_pk pack;
-        // printf("Ready to pack message.\n");
-        // printf("name -> %d\n", mesg.flag);
-        // printf("version -> %d\n", mesg.version);
-        // printf("name_len -> %d\n", mesg.name_len);
-        // printf("name -> [%s]\n", mesg.name);
-        // printf("mesg_len -> %d\n", mesg.mesg_len);
-        // printf("mesg -> [%s]\n", mesg.mesg);
+        printf("Ready to pack message.\n");
+        printf("flag -> %d\n", mesg.flag);
+        printf("version -> %d\n", mesg.version);
+        printf("name_len -> %d\n", mesg.name_len);
+        printf("name -> [%s]\n", mesg.name);
+        printf("mesg_len -> %d\n", mesg.mesg_len);
+        printf("mesg -> [%s]\n", mesg.mesg);
         pack_message(&pack, mesg);
         sockaddr_in cliaddr = user->chat_addr;
         sendto(sendfd, pack.data, pack.len, 0, (sockaddr *) &cliaddr, sizeof(cliaddr));
     }
-
-    return "Chat: name = " + name + "; mesg = " + message + "\n";
+    printf("Chat OK\n");
+    // return "Chat: name = " + name + "; mesg = " + message + "\n";
+    return "Chat OK\n";
 }
 
 #endif

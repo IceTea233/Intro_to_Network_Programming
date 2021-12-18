@@ -19,7 +19,7 @@ bool filter(std::string &str) {
         int pos;
         while ((pos = str.find(target)) != -1) {
             flag = true;
-            for (int i = 0; i < target.size(); i++) {
+            for (int i = 0; i < (int) target.size(); i++) {
                 str[pos + i] = '*';
             }
         }
